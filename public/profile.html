@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskMate — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b10;--bg2:#0d1117;--bg3:#111620;--card:#131b27;--card2:#172032;
+  --border:#1e2d42;--border2:#253448;
+  --accent:#4f9cf9;--accent2:#7c5cfc;--accent3:#f97b4f;
+  --green:#3ecf8e;--yellow:#f5c542;--red:#f7524a;
+  --text:#e8edf5;--muted:#7a8fa6;--faint:#192233;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+h1,h2,h3,h4{font-family:'Syne',sans-serif;line-height:1.2}
+
+/* TOP */
+.topbar{
+  height:56px;background:rgba(8,11,16,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 1.5rem;gap:1rem;
+  position:sticky;top:0;z-index:50;
+}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo span{-webkit-text-fill-color:var(--accent3)}
+.back-btn{padding:.4rem .9rem;border-radius:8px;background:none;border:1px solid var(--border);color:var(--muted);font-size:.8rem;cursor:pointer;transition:all .2s}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.topbar-right{margin-left:auto;display:flex;gap:.6rem}
+.btn-edit{padding:.4rem 1rem;border-radius:8px;background:none;border:1px solid var(--border);color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-edit:hover,.btn-edit.active{border-color:var(--accent);color:var(--accent);background:rgba(79,156,249,.07)}
+
+/* HERO */
+.profile-hero{
+  background:linear-gradient(180deg,rgba(79,156,249,.07) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);padding:2.5rem 5%;
+  display:flex;align-items:flex-end;gap:2rem;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.ho1{width:350px;height:350px;background:rgba(79,156,249,.08);top:-50%;left:20%}
+.ho2{width:250px;height:250px;background:rgba(124,92,252,.07);top:-30%;right:10%}
+.profile-avatar-wrap{position:relative;flex-shrink:0}
+.profile-avatar{
+  width:100px;height:100px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;font-weight:800;
+  border:3px solid var(--border);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  position:relative;z-index:1;
+}
+.verified-badge{
+  position:absolute;bottom:4px;right:4px;
+  background:var(--green);border-radius:50%;width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;font-size:.75rem;
+  border:2px solid var(--bg2);
+}
+.profile-info{flex:1;min-width:220px}
+.profile-name{font-size:1.8rem;font-weight:800;letter-spacing:-1px;margin-bottom:.2rem}
+.profile-campus{color:var(--muted);font-size:.9rem;margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+.profile-bio{color:var(--muted);font-size:.88rem;max-width:500px;line-height:1.6;margin-bottom:.9rem}
+.skill-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.skill-tag{
+  padding:.3rem .8rem;border-radius:999px;font-size:.75rem;font-weight:600;
+  background:rgba(79,156,249,.1);border:1px solid rgba(79,156,249,.2);color:var(--accent);
+}
+.profile-stats-row{display:flex;gap:2rem;flex-wrap:wrap;margin-left:auto;align-self:flex-start;padding-top:.5rem}
+.pstat{text-align:center;min-width:70px}
+.pstat-num{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1}
+.pstat-label{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+.coins-pill{
+  display:flex;align-items:center;gap:.4rem;
+  background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.2);
+  padding:.35rem .9rem;border-radius:999px;
+  font-size:.82rem;font-weight:700;color:var(--yellow);
+}
+
+/* RATING STARS */
+.star-row{display:flex;align-items:center;gap:.3rem;margin-bottom:.4rem}
+.star-row .star{color:var(--yellow);font-size:1.1rem}
+.rating-num{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--yellow)}
+.rating-sub{font-size:.75rem;color:var(--muted)}
+
+/* BADGES */
+.badges-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.7rem}
+.badge-item{
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--card);border:1px solid var(--border);border-radius:999px;
+  padding:.3rem .8rem;font-size:.75rem;font-weight:600;
+}
+
+/* CONTENT */
+.content{max-width:1100px;margin:0 auto;padding:2rem 5%;display:grid;grid-template-columns:1fr 340px;gap:2rem;align-items:start}
+.section-title{font-size:1rem;font-weight:800;margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.2rem}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--bg2);border-radius:10px;padding:.3rem;margin-bottom:1.4rem}
+.tab{flex:1;padding:.55rem;border-radius:8px;font-family:'Syne',sans-serif;font-size:.83rem;font-weight:700;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .2s;text-align:center}
+.tab.active{background:var(--card);color:var(--text)}
+
+/* TASK ROW */
+.task-row{
+  display:flex;gap:.9rem;align-items:flex-start;padding:.9rem 0;
+  border-bottom:1px solid rgba(30,45,66,.5);transition:opacity .2s;cursor:pointer;
+}
+.task-row:last-child{border-bottom:none}
+.task-row:hover{opacity:.8}
+.tr-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.tr-info{flex:1}
+.tr-title{font-size:.9rem;font-weight:700;margin-bottom:.25rem}
+.tr-sub{font-size:.78rem;color:var(--muted)}
+.tr-meta{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0}
+.tr-status{font-size:.68rem;font-weight:700;padding:.2rem .6rem;border-radius:999px}
+.status-open{background:rgba(62,207,142,.12);color:var(--green)}
+.status-done{background:rgba(124,92,252,.12);color:var(--accent2)}
+.status-prog{background:rgba(79,156,249,.12);color:var(--accent)}
+.tr-time{font-size:.68rem;color:var(--muted)}
+
+/* REVIEW */
+.review-card{background:var(--card2);border-radius:12px;padding:1.1rem;margin-bottom:.8rem}
+.rev-top{display:flex;align-items:center;gap:.7rem;margin-bottom:.6rem}
+.rev-ava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
+.rev-name{font-size:.88rem;font-weight:700}
+.rev-stars{color:var(--yellow);font-size:.85rem;letter-spacing:1px}
+.rev-time{margin-left:auto;font-size:.72rem;color:var(--muted)}
+.rev-comment{font-size:.83rem;color:var(--muted);line-height:1.6;font-style:italic}
+
+/* SIDEBAR */
+.side-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.2rem}
+.side-title{font-size:.88rem;font-weight:800;margin-bottom:1rem}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid rgba(30,45,66,.4)}
+.stat-row:last-child{border-bottom:none}
+.stat-row-label{font-size:.82rem;color:var(--muted)}
+.stat-row-val{font-size:.88rem;font-weight:700}
+
+/* EDIT FORM */
+.edit-panel{display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.6rem;margin-bottom:1.5rem}
+.edit-panel.show{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.form-lbl{font-size:.72rem;font-weight:700;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:.35rem;text-transform:uppercase}
+.form-inp,.form-ta{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:.7rem 1rem;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;margin-bottom:1rem;font-family:'DM Sans',sans-serif}
+.form-inp:focus,.form-ta:focus{border-color:var(--accent)}
+.form-ta{resize:vertical;min-height:80px}
+.skills-input-wrap{display:flex;gap:.5rem;margin-bottom:.7rem}
+.current-skills{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.rem-skill{display:flex;align-items:center;gap:.3rem;padding:.28rem .7rem;border-radius:999px;background:rgba(79,156,249,.1);border:1px solid rgba(79,156,249,.2);color:var(--accent);font-size:.75rem;font-weight:600}
+.rem-skill button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:.8rem;padding:0;line-height:1}
+.save-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .25s;box-shadow:0 4px 18px rgba(79,156,249,.25)}
+.save-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,156,249,.4)}
+.cancel-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.75rem 1.5rem;border-radius:10px;font-family:'Syne',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;margin-left:.7rem;transition:all .2s}
+.cancel-btn:hover{border-color:var(--muted)}
+
+/* ACTIVITY CHART */
+.activity-chart{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:.8rem}
+.ac-col{display:flex;flex-direction:column;gap:3px}
+.ac-cell{height:10px;border-radius:2px;background:var(--faint);transition:background .2s}
+.ac-cell.l1{background:rgba(79,156,249,.25)}
+.ac-cell.l2{background:rgba(79,156,249,.5)}
+.ac-cell.l3{background:rgba(79,156,249,.75)}
+.ac-cell.l4{background:var(--accent)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.9rem 1.3rem;display:flex;align-items:center;gap:.75rem;min-width:240px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateX(130%);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateX(0)}
+
+@media(max-width:900px){.content{grid-template-columns:1fr}.profile-stats-row{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="dashboard.html" style="text-decoration:none"><button class="back-btn">← Dashboard</button></a>
+  <div class="logo">Task<span>Mate</span></div>
+  <div class="topbar-right">
+    <button class="btn-edit" id="edit-toggle-btn" onclick="toggleEdit()">✏️ Edit Profile</button>
+    <button class="btn-edit" onclick="toast('📤','Share','Profile link copied to clipboard!')">Share Profile</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="profile-hero">
+  <div class="hero-orb ho1"></div>
+  <div class="hero-orb ho2"></div>
+
+  <div class="profile-avatar-wrap">
+    <div class="profile-avatar" id="hero-ava">A</div>
+    <div class="verified-badge">✓</div>
+  </div>
+
+  <div class="profile-info">
+    <div class="profile-name" id="hero-name">Aryan Khan</div>
+    <div class="profile-campus"><span>🎓</span><span id="hero-campus">NIT Srinagar</span><span style="color:var(--border2)">·</span><span id="hero-join">Joined Jan 2025</span></div>
+    <div class="profile-bio" id="hero-bio">CS final year student passionate about competitive programming and machine learning. I love helping others debug code and explaining complex topics simply.</div>
+    <div class="skill-tags" id="hero-skills"></div>
+    <div class="badges-row" id="hero-badges"></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:1rem;align-items:flex-end">
+    <div class="star-row">
+      <span class="rating-num" id="hero-rating">4.9</span>
+      <div><div id="hero-stars" style="color:var(--yellow);font-size:1rem">★★★★★</div><div class="rating-sub" id="hero-reviews">Based on 34 reviews</div></div>
+    </div>
+    <div class="coins-pill">🪙 <span id="hero-coins">50</span> TaskCoins</div>
+    <div class="profile-stats-row">
+      <div class="pstat"><div class="pstat-num" id="hero-posted">12</div><div class="pstat-label">Posted</div></div>
+      <div class="pstat"><div class="pstat-num" id="hero-done">34</div><div class="pstat-label">Completed</div></div>
+      <div class="pstat"><div class="pstat-num" id="hero-earned">₹2.4k</div><div class="pstat-label">Earned</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <!-- MAIN COLUMN -->
+  <div>
+    <!-- EDIT PANEL -->
+    <div class="edit-panel" id="edit-panel">
+      <h3 style="font-size:1rem;margin-bottom:1.2rem">✏️ Edit Your Profile</h3>
+      <label class="form-lbl">Full Name</label>
+      <input class="form-inp" id="edit-name" value="Aryan Khan">
+      <label class="form-lbl">Bio</label>
+      <textarea class="form-ta" id="edit-bio">CS final year student passionate about competitive programming and machine learning. I love helping others debug code and explaining complex topics simply.</textarea>
+      <label class="form-lbl">Campus</label>
+      <input class="form-inp" id="edit-campus" value="NIT Srinagar">
+      <label class="form-lbl">Skills (press Enter to add)</label>
+      <div class="skills-input-wrap">
+        <input class="form-inp" id="skill-inp" placeholder="e.g. Python, React, Design..." style="margin:0;flex:1" onkeydown="addSkillKey(event)">
+        <button onclick="addSkill()" style="padding:.7rem 1.1rem;background:var(--accent);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">Add</button>
+      </div>
+      <div class="current-skills" id="edit-skills-list"></div>
+      <div style="margin-top:.5rem">
+        <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+        <button class="cancel-btn" onclick="toggleEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('tasks',this)">Tasks</button>
+      <button class="tab" onclick="switchTab('reviews',this)">Reviews</button>
+      <button class="tab" onclick="switchTab('activity',this)">Activity</button>
+    </div>
+
+    <!-- TASKS TAB -->
+    <div id="tab-tasks">
+      <div class="card">
+        <div class="section-title">📋 Task History</div>
+        <div class="filter-bar" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem" id="task-filters"></div>
+        <div id="task-history"></div>
+      </div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div id="tab-reviews" style="display:none">
+      <div class="card">
+        <div class="section-title">⭐ Reviews</div>
+        <div style="display:flex;gap:2rem;align-items:center;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)">
+          <div style="text-align:center">
+            <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--yellow)">4.9</div>
+            <div style="color:var(--yellow);font-size:1.2rem;letter-spacing:2px">★★★★★</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem">34 ratings</div>
+          </div>
+          <div style="flex:1">
+            <div id="rating-bars"></div>
+          </div>
+        </div>
+        <div id="reviews-list"></div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY TAB -->
+    <div id="tab-activity" style="display:none">
+      <div class="card">
+        <div class="section-title">📊 Activity Heatmap</div>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Task activity over the last 12 weeks</p>
+        <div class="activity-chart" id="activity-chart"></div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.7rem;color:var(--muted)">
+          Less <div style="display:flex;gap:2px"><div style="width:10px;height:10px;border-radius:2px;background:var(--faint)"></div><div style="width:10px;height:10px;border-radius:2px;background:rgba(79,156,249,.25)"></div><div style="width:10px;height:10px;border-radius:2px;background:rgba(79,156,249,.5)"></div><div style="width:10px;height:10px;border-radius:2px;background:var(--accent)"></div></div> More
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">📈 Stats Over Time</div>
+        <div id="monthly-stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div>
+    <div class="side-card">
+      <div class="side-title">📊 Quick Stats</div>
+      <div id="quick-stats"></div>
+    </div>
+    <div class="side-card">
+      <div class="side-title">🏆 Badges Earned</div>
+      <div id="badge-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem"></div>
+    </div>
+    <div class="side-card">
+      <div class="side-title">🔗 Contact</div>
+      <div style="display:flex;flex-direction:column;gap:.6rem">
+        <button onclick="toast('💬','Opening chat...','Redirecting to messages')" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.75rem;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">💬 Send Message</button>
+        <button onclick="toast('📋','Offer sent!','Your offer has been submitted')" style="width:100%;background:none;border:1px solid var(--border);color:var(--text);padding:.7rem;border-radius:10px;font-family:'Syne',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;transition:all .2s">⚡ Send Task Offer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="t-icon">🎉</span>
+  <div><div id="t-title" style="font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem"></div><div id="t-msg" style="font-size:.75rem;color:var(--muted)"></div></div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────
+const API = 'https://taskmate-api-e853.onrender.com/api';
+const TOKEN = localStorage.getItem('tm_token') || '';
+
+// ─── DATA ────────────────────────────────────────────
+const USER={
+  name:'Aryan Khan',campus:'NIT Srinagar',coins:180,rating:4.9,
+  total_tasks:34,posted:12,earned:'₹2.4k',
+  bio:"CS final year student passionate about competitive programming and machine learning. I love helping others debug code and explaining complex topics simply.",
+  skills:['Python','React','Node.js','Machine Learning','DSA','SQL'],
+  joined:'January 2025',reviews:34,
+};
+
+const BADGES=[
+  {icon:'⚡',name:'Quick Helper',desc:'Responded in <5 min',color:'rgba(79,156,249,.1)',border:'rgba(79,156,249,.2)'},
+  {icon:'🏆',name:'Top Rated',desc:'4.9+ rating',color:'rgba(245,197,66,.1)',border:'rgba(245,197,66,.2)'},
+  {icon:'🎓',name:'Expert Tutor',desc:'10+ tutoring tasks',color:'rgba(124,92,252,.1)',border:'rgba(124,92,252,.2)'},
+  {icon:'🔥',name:'On a Streak',desc:'7 days active',color:'rgba(249,123,79,.1)',border:'rgba(249,123,79,.2)'},
+  {icon:'💎',name:'Premium Helper',desc:'50+ completions',color:'rgba(62,207,142,.1)',border:'rgba(62,207,142,.2)'},
+  {icon:'🌟',name:'Campus Star',desc:'#1 leaderboard',color:'rgba(79,156,249,.1)',border:'rgba(79,156,249,.2)'},
+];
+
+const TASKS=[
+  {title:'Explained Fourier transforms for DSP exam',cat:'🎓 Tutoring',status:'completed',offer:'₹100 + Signal notes',time:'2 days ago'},
+  {title:'Designed pitch deck for entrepreneurship',cat:'📊 Presentations',status:'completed',offer:'₹50 + Econ notes',time:'5 days ago'},
+  {title:'Debugged React hooks for internship project',cat:'💻 Coding Help',status:'in_progress',offer:'₹200',time:'1 week ago'},
+  {title:'Proofread 2000-word environmental essay',cat:'📚 Notes Exchange',status:'completed',offer:'Canteen voucher',time:'1 week ago'},
+  {title:'Python OOP & data structures help',cat:'💻 Coding Help',status:'open',offer:'₹150 + Pizza',time:'2 weeks ago'},
+  {title:'Translated assignment from Hindi to English',cat:'🌐 Translation',status:'completed',offer:'30 TaskCoins',time:'3 weeks ago'},
+];
+
+const REVIEWS=[
+  {name:'Sara M.',ava:'S',color:'#4f9cf9',score:5,comment:"Aryan explained everything so clearly! Fixed my entire assignment in 2 hours. Highly recommend 🙌",time:'2 days ago'},
+  {name:'Nadia A.',ava:'N',color:'#7c5cfc',score:5,comment:"Super patient and knowledgeable. The DSP concepts finally clicked after our session. 10/10!",time:'5 days ago'},
+  {name:'Rohit S.',ava:'R',color:'#3ecf8e',score:5,comment:"Quick, professional, and went above and beyond. Even left detailed comments in my code!",time:'1 week ago'},
+  {name:'Priya S.',ava:'P',color:'#f97b4f',score:4,comment:"Really helpful! Could've been slightly faster but quality was excellent.",time:'2 weeks ago'},
+];
+
+const QUICK_STATS=[
+  {label:'Response Time',val:'< 5 min'},
+  {label:'Completion Rate',val:'97%'},
+  {label:'Repeat Clients',val:'8'},
+  {label:'Offers Sent',val:'42'},
+  {label:'Offers Accepted',val:'34'},
+  {label:'TaskCoins Earned',val:'180'},
+];
+
+let editMode=false;
+let editSkills=[...USER.skills];
+const currentUser=JSON.parse(localStorage.getItem('tm_user')||'null');
+
+// ─── INIT ─────────────────────────────────────────────
+function init(){
+  renderHero();renderBadgeRow();renderSkillTags();
+  renderTaskHistory();renderReviews();renderQuickStats();
+  renderBadges();renderActivity();renderMonthly();
+  renderEditSkills();renderRatingBars();
+  buildTaskFilters();
+}
+
+function renderHero(){
+  document.getElementById('hero-name').textContent=USER.name;
+  document.getElementById('hero-campus').textContent=USER.campus;
+  document.getElementById('hero-join').textContent='Joined '+USER.joined;
+  document.getElementById('hero-bio').textContent=USER.bio;
+  document.getElementById('hero-rating').textContent=USER.rating;
+  document.getElementById('hero-reviews').textContent='Based on '+USER.reviews+' reviews';
+  document.getElementById('hero-coins').textContent=USER.coins;
+  document.getElementById('hero-posted').textContent=USER.posted;
+  document.getElementById('hero-done').textContent=USER.total_tasks;
+  document.getElementById('hero-earned').textContent=USER.earned;
+}
+
+function renderSkillTags(){
+  document.getElementById('hero-skills').innerHTML=USER.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('');
+}
+
+function renderBadgeRow(){
+  document.getElementById('hero-badges').innerHTML=BADGES.slice(0,3).map(b=>`
+    <div class="badge-item" style="background:${b.color};border-color:${b.border}">${b.icon} ${b.name}</div>`).join('');
+}
+
+function renderTaskHistory(filter='all'){
+  const shown=filter==='all'?TASKS:TASKS.filter(t=>t.status===filter);
+  document.getElementById('task-history').innerHTML=shown.map(t=>{
+    const sc=t.status==='completed'?'status-done':t.status==='in_progress'?'status-prog':'status-open';
+    const colors={'💻':'rgba(79,156,249,.12)','📊':'rgba(124,92,252,.12)','🎓':'rgba(245,197,66,.12)','📚':'rgba(62,207,142,.12)','🌐':'rgba(249,123,79,.12)'};
+    const bg=colors[t.cat[0]]||'var(--faint)';
+    return`<div class="task-row">
+      <div class="tr-icon" style="background:${bg}">${t.cat.split(' ')[0]}</div>
+      <div class="tr-info">
+        <div class="tr-title">${t.title}</div>
+        <div class="tr-sub">${t.cat} · ${t.offer}</div>
+      </div>
+      <div class="tr-meta">
+        <span class="tr-status ${sc}">${t.status==='completed'?'✓ Done':t.status==='in_progress'?'● Active':'○ Open'}</span>
+        <span class="tr-time">${t.time}</span>
+      </div>
+    </div>`;
+  }).join('')||`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.88rem">No tasks in this category</div>`;
+}
+
+function buildTaskFilters(){
+  const filters=['all','open','in_progress','completed'];
+  const labels=['All','Open','In Progress','Completed'];
+  document.getElementById('task-filters').innerHTML=filters.map((f,i)=>
+    `<button class="btn-edit ${i===0?'active':''}" onclick="filterTasks('${f}',this)">${labels[i]}</button>`).join('');
+}
+function filterTasks(f,btn){
+  document.querySelectorAll('#task-filters button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderTaskHistory(f);
+}
+
+function renderReviews(){
+  document.getElementById('reviews-list').innerHTML=REVIEWS.map(r=>`
+    <div class="review-card">
+      <div class="rev-top">
+        <div class="rev-ava" style="background:${r.color}">${r.ava}</div>
+        <div>
+          <div class="rev-name">${r.name}</div>
+          <div class="rev-stars">${'★'.repeat(r.score)}${'☆'.repeat(5-r.score)}</div>
+        </div>
+        <div class="rev-time">${r.time}</div>
+      </div>
+      <div class="rev-comment">"${r.comment}"</div>
+    </div>`).join('');
+}
+
+function renderRatingBars(){
+  const counts=[0,1,1,32];// 2star:0, 3star:0, 4star:1, 5star:32 (of 34)
+  const labels=['5 ★','4 ★','3 ★','2 ★','1 ★'];
+  const vals=[32,1,1,0,0];
+  document.getElementById('rating-bars').innerHTML=labels.map((l,i)=>`
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.4rem">
+      <span style="font-size:.75rem;color:var(--muted);width:28px;flex-shrink:0">${l}</span>
+      <div style="flex:1;background:var(--faint);border-radius:999px;height:7px;overflow:hidden">
+        <div style="height:100%;width:${(vals[i]/34)*100}%;background:var(--yellow);border-radius:999px;transition:width .6s ease"></div>
+      </div>
+      <span style="font-size:.72rem;color:var(--muted);width:20px;text-align:right">${vals[i]}</span>
+    </div>`).join('');
+}
+
+function renderQuickStats(){
+  document.getElementById('quick-stats').innerHTML=QUICK_STATS.map(s=>`
+    <div class="stat-row">
+      <span class="stat-row-label">${s.label}</span>
+      <span class="stat-row-val">${s.val}</span>
+    </div>`).join('');
+}
+
+function renderBadges(){
+  document.getElementById('badge-grid').innerHTML=BADGES.map(b=>`
+    <div style="background:${b.color};border:1px solid ${b.border};border-radius:12px;padding:.9rem;text-align:center;cursor:default;transition:transform .2s" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+      <div style="font-size:1.5rem;margin-bottom:.3rem">${b.icon}</div>
+      <div style="font-size:.75rem;font-weight:700">${b.name}</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:.1rem">${b.desc}</div>
+    </div>`).join('');
+}
+
+function renderActivity(){
+  const levels=['','l1','l2','l3','l4'];
+  const chart=document.getElementById('activity-chart');
+  chart.innerHTML='';
+  for(let w=0;w<12;w++){
+    const col=document.createElement('div');col.className='ac-col';
+    for(let d=0;d<7;d++){
+      const cell=document.createElement('div');
+      const rand=Math.random();
+      const lvl=rand<.45?0:rand<.65?1:rand<.8?2:rand<.92?3:4;
+      cell.className='ac-cell '+(levels[lvl]||'');
+      cell.title=`${lvl*2} tasks`;col.appendChild(cell);
+    }
+    chart.appendChild(col);
+  }
+}
+
+function renderMonthly(){
+  const months=['Oct','Nov','Dec','Jan','Feb','Mar'];
+  const vals=[4,5,8,7,6,4];
+  document.getElementById('monthly-stats').innerHTML=`
+    <div style="display:flex;gap:.5rem;align-items:flex-end;height:100px;margin-bottom:.5rem">
+      ${months.map((m,i)=>`
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem">
+          <div style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent),var(--accent2));height:${(vals[i]/8)*80}px;transition:height .6s ease"></div>
+          <div style="font-size:.68rem;color:var(--muted)">${m}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
+      <span>Tasks completed per month</span>
+      <span style="color:var(--accent)">Total: ${vals.reduce((a,b)=>a+b,0)}</span>
+    </div>`;
+}
+
+// ─── EDIT PROFILE ─────────────────────────────────────
+function toggleEdit(){
+  editMode=!editMode;
+  const panel=document.getElementById('edit-panel');
+  const btn=document.getElementById('edit-toggle-btn');
+  panel.classList.toggle('show',editMode);
+  btn.classList.toggle('active',editMode);
+  btn.textContent=editMode?'✕ Cancel Edit':'✏️ Edit Profile';
+  if(editMode){
+    document.getElementById('edit-name').value=USER.name;
+    document.getElementById('edit-bio').value=USER.bio;
+    document.getElementById('edit-campus').value=USER.campus;
+    renderEditSkills();
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+function renderEditSkills(){
+  document.getElementById('edit-skills-list').innerHTML=editSkills.map((s,i)=>`
+    <div class="rem-skill">${s}<button onclick="removeSkill(${i})">✕</button></div>`).join('');
+}
+function addSkillKey(e){if(e.key==='Enter'){e.preventDefault();addSkill()}}
+function addSkill(){
+  const inp=document.getElementById('skill-inp');
+  const v=inp.value.trim();
+  if(v&&!editSkills.includes(v)){editSkills.push(v);renderEditSkills();}
+  inp.value='';
+}
+function removeSkill(i){editSkills.splice(i,1);renderEditSkills();}
+
+function saveProfile(){
+  USER.name=document.getElementById('edit-name').value;
+  USER.bio=document.getElementById('edit-bio').value;
+  USER.campus=document.getElementById('edit-campus').value;
+  USER.skills=[...editSkills];
+  renderHero();renderSkillTags();
+  toggleEdit();
+  toast('✅','Profile updated!','Your changes have been saved.');
+}
+
+// ─── TABS ─────────────────────────────────────────────
+function switchTab(tab,btn){
+  ['tasks','reviews','activity'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tabs .tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─── TOAST ────────────────────────────────────────────
+function toast(icon,title,msg){
+  document.getElementById('t-icon').textContent=icon;
+  document.getElementById('t-title').textContent=title;
+  document.getElementById('t-msg').textContent=msg;
+  const t=document.getElementById('toast');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+init();
+</script>
+</body>
+</html>

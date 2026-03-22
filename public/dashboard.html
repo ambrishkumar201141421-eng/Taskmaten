@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskMate — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080b10; --bg2:#0d1117; --bg3:#111620; --card:#131b27;
+  --card2:#172032; --border:#1e2d42; --border2:#253448;
+  --accent:#4f9cf9; --accent2:#7c5cfc; --accent3:#f97b4f;
+  --green:#3ecf8e; --yellow:#f5c542; --red:#f7524a;
+  --text:#e8edf5; --muted:#7a8fa6; --faint:#192233;
+  --sidebar-w:260px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;display:flex;min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;line-height:1.2}
+button{cursor:pointer;font-family:'DM Sans',sans-serif}
+input,textarea,select{font-family:'DM Sans',sans-serif}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:50;
+  transition:transform .3s;
+}
+.sidebar-logo{
+  padding:1.4rem 1.5rem;border-bottom:1px solid var(--border);
+  font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.sidebar-logo span{-webkit-text-fill-color:var(--accent3)}
+.sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto}
+.nav-section{padding:.4rem 1.2rem .2rem;font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.nav-item{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.65rem 1.5rem;font-size:.88rem;font-weight:500;
+  color:var(--muted);text-decoration:none;border-left:3px solid transparent;
+  transition:all .2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;
+}
+.nav-item:hover{color:var(--text);background:var(--faint)}
+.nav-item.active{color:var(--accent);background:rgba(79,156,249,0.08);border-left-color:var(--accent)}
+.nav-item .ni{font-size:1rem;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:999px}
+.sidebar-user{
+  padding:1rem 1.2rem;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:.75rem;
+}
+.su-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;flex-shrink:0}
+.su-name{font-size:.85rem;font-weight:600}
+.su-campus{font-size:.72rem;color:var(--muted)}
+.su-coins{margin-left:auto;font-size:.75rem;font-weight:700;color:var(--yellow);background:rgba(245,197,66,0.1);padding:.2rem .6rem;border-radius:999px}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{
+  height:60px;background:rgba(8,11,16,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 2rem;gap:1rem;
+  position:sticky;top:0;z-index:40;
+}
+.topbar-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;flex:1}
+.search-box{
+  display:flex;align-items:center;gap:.6rem;
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:.45rem .9rem;width:240px;transition:border-color .2s;
+}
+.search-box:focus-within{border-color:var(--accent)}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-size:.85rem;width:100%}
+.search-box input::placeholder{color:var(--muted)}
+.topbar-actions{display:flex;align-items:center;gap:.6rem}
+.icon-btn{
+  width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:1rem;
+  transition:all .2s;position:relative;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--accent3);border:2px solid var(--bg2)}
+
+/* ── PAGE CONTENT ── */
+.page{display:none;padding:2rem;flex:1;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:1.4rem;position:relative;overflow:hidden;transition:border-color .3s;
+}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+  border-radius:0 16px 0 60px;opacity:.06;
+}
+.sc-icon{font-size:1.4rem;margin-bottom:.8rem;display:block}
+.sc-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:.3rem}
+.sc-label{font-size:.78rem;color:var(--muted);font-weight:500}
+.sc-delta{font-size:.72rem;margin-top:.4rem;font-weight:600}
+.delta-up{color:var(--green)} .delta-down{color:var(--red)}
+
+/* ── CONTENT GRID ── */
+.content-grid{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.section-head h3{font-size:1rem;font-weight:800}
+.section-head a{font-size:.8rem;color:var(--accent);text-decoration:none}
+
+/* ── TASK CARDS ── */
+.task-list{display:flex;flex-direction:column;gap:.8rem}
+.task-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:1.1rem 1.3rem;cursor:pointer;transition:all .25s;position:relative;
+}
+.task-card:hover{border-color:rgba(79,156,249,.35);transform:translateY(-2px)}
+.task-card::before{
+  content:'';position:absolute;left:0;top:14px;bottom:14px;
+  width:3px;border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  opacity:0;transition:opacity .25s;
+}
+.task-card:hover::before{opacity:1}
+.tc-row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.45rem}
+.tc-title{font-family:'Syne',sans-serif;font-size:.93rem;font-weight:700;line-height:1.3}
+.tag{font-size:.7rem;font-weight:700;padding:.22rem .65rem;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.tag-blue{background:rgba(79,156,249,.13);color:var(--accent)}
+.tag-purple{background:rgba(124,92,252,.13);color:var(--accent2)}
+.tag-orange{background:rgba(249,123,79,.13);color:var(--accent3)}
+.tag-green{background:rgba(62,207,142,.13);color:var(--green)}
+.tag-red{background:rgba(247,82,74,.13);color:var(--red)}
+.tc-desc{font-size:.82rem;color:var(--muted);margin-bottom:.7rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tc-foot{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.offer-tag{font-size:.75rem;font-weight:700;color:var(--green);background:rgba(62,207,142,.1);padding:.18rem .6rem;border-radius:999px}
+.user-chip{display:flex;align-items:center;gap:.35rem;font-size:.75rem;color:var(--muted)}
+.ava{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff;flex-shrink:0}
+.tc-time{margin-left:auto;font-size:.72rem;color:var(--muted)}
+.offers-count{font-size:.72rem;color:var(--accent);margin-left:.4rem}
+
+/* ── FILTERS ── */
+.filter-bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.fbtn{padding:.38rem .9rem;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid var(--border);color:var(--muted);background:none;transition:all .2s}
+.fbtn.on,.fbtn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ── SIDE PANEL ── */
+.side-panel{display:flex;flex-direction:column;gap:1.2rem}
+.panel-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem}
+
+/* ── POST TASK FORM ── */
+.form-lbl{font-size:.72rem;font-weight:700;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:.35rem;text-transform:uppercase}
+.form-inp,.form-sel,.form-ta{
+  width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  padding:.65rem .9rem;color:var(--text);font-size:.88rem;outline:none;transition:border-color .2s;
+  margin-bottom:.9rem;
+}
+.form-inp:focus,.form-sel:focus,.form-ta:focus{border-color:var(--accent)}
+.form-ta{resize:vertical;min-height:72px}
+.form-sel{appearance:none;cursor:pointer}
+.chip-group{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem}
+.chip{padding:.3rem .75rem;border-radius:999px;font-size:.75rem;font-weight:600;border:1px solid var(--border);color:var(--muted);background:none;transition:all .2s}
+.chip.on,.chip:hover{background:rgba(79,156,249,.13);border-color:var(--accent);color:var(--accent)}
+.btn-submit{
+  width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;padding:.8rem;border-radius:10px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;
+  transition:all .25s;box-shadow:0 4px 18px rgba(79,156,249,.25);
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,156,249,.4)}
+
+/* ── LEADERBOARD ── */
+.lb-row{display:flex;align-items:center;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem;width:22px;color:var(--muted);flex-shrink:0}
+.lb-rank.top{color:var(--yellow)}
+.lb-name{font-size:.85rem;font-weight:600;flex:1}
+.lb-sub{font-size:.72rem;color:var(--muted)}
+.lb-score{font-size:.78rem;font-weight:700;color:var(--green)}
+
+/* ── ACTIVITY ── */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.act-row{display:flex;gap:.8rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid rgba(30,45,66,.6)}
+.act-row:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.act-text{font-size:.82rem;line-height:1.5}
+.act-time{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+
+/* ── NOTIFICATION PANEL ── */
+.notif-list{display:flex;flex-direction:column;gap:.6rem}
+.notif-item{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:1rem 1.2rem;display:flex;gap:.8rem;align-items:flex-start;transition:border-color .2s;
+}
+.notif-item.unread{border-color:rgba(79,156,249,.25);background:rgba(79,156,249,.04)}
+.notif-icon{font-size:1.2rem;flex-shrink:0;margin-top:.1rem}
+.notif-title{font-weight:700;font-size:.88rem;margin-bottom:.15rem}
+.notif-body{font-size:.8rem;color:var(--muted);line-height:1.5}
+.notif-time{font-size:.7rem;color:var(--muted);margin-top:.2rem}
+
+/* ── MY TASKS PAGE ── */
+.my-task-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.my-task-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem;
+  transition:all .3s;
+}
+.my-task-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.mtc-status{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;padding:.25rem .75rem;border-radius:999px;margin-bottom:.8rem}
+.status-open{background:rgba(62,207,142,.12);color:var(--green)}
+.status-progress{background:rgba(79,156,249,.12);color:var(--accent)}
+.status-done{background:rgba(124,92,252,.12);color:var(--accent2)}
+.mtc-title{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+.mtc-desc{font-size:.82rem;color:var(--muted);margin-bottom:.9rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mtc-foot{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.mtc-offers{font-size:.78rem;color:var(--accent);font-weight:600}
+.mtc-time{font-size:.72rem;color:var(--muted);margin-left:auto}
+.btn-sm{padding:.38rem .9rem;border-radius:8px;font-size:.78rem;font-weight:600;border:1px solid var(--border);color:var(--muted);background:none;transition:all .2s}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:3rem;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:.8rem}
+.empty h4{font-size:1rem;font-weight:700;margin-bottom:.3rem;color:var(--text)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:.9rem 1.3rem;display:flex;align-items:center;gap:.75rem;
+  min-width:250px;box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transform:translateX(130%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show{transform:translateX(0)}
+.toast-icon{font-size:1.2rem}
+.toast-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem}
+.toast-msg{font-size:.75rem;color:var(--muted)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}}
+@media(max-width:800px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Task<span>Mate</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="ni">🏠</span>Dashboard</button>
+    <button class="nav-item" onclick="showPage('browse',this)"><span class="ni">🔍</span>Browse Tasks<span class="nav-badge" id="badge-browse">12</span></button>
+    <button class="nav-item" onclick="showPage('my-tasks',this)"><span class="ni">📋</span>My Tasks</button>
+    <button class="nav-item" onclick="showPage('chat',this)"><span class="ni">💬</span>Messages<span class="nav-badge" id="badge-msg">3</span></button>
+    <div class="nav-section" style="margin-top:.8rem">Account</div>
+    <button class="nav-item" onclick="showPage('notifications',this)"><span class="ni">🔔</span>Notifications<span class="nav-badge" id="badge-notif">5</span></button>
+    <button class="nav-item" onclick="window.location.href='profile.html'"><span class="ni">👤</span>Profile</button>
+    <button class="nav-item" onclick="showPage('leaderboard',this)"><span class="ni">🏆</span>Leaderboard</button>
+    <button class="nav-item" style="color:var(--muted);margin-top:auto"><span class="ni">⚙️</span>Settings</button>
+  </nav>
+  <div class="sidebar-user">
+    <div class="su-avatar" style="background:linear-gradient(135deg,#4f9cf9,#7c5cfc)">A</div>
+    <div><div class="su-name" id="sb-name">Aryan K.</div><div class="su-campus" id="sb-campus">NIT Srinagar</div></div>
+    <div class="su-coins" id="sb-coins">🪙 50</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="search-box"><span>🔍</span><input placeholder="Search tasks, users..." id="search-inp" oninput="searchTasks(this.value)"></div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="showPage('notifications',document.querySelector('[onclick*=notifications]'))">
+        🔔<span class="notif-dot" id="notif-dot"></span>
+      </button>
+      <button class="icon-btn" onclick="window.location.href='profile.html'">👤</button>
+    </div>
+  </div>
+
+  <!-- ══ DASHBOARD PAGE ══ -->
+  <div class="page active" id="page-dashboard">
+    <div class="stat-grid" id="stat-grid"></div>
+    <div class="content-grid">
+      <div>
+        <div class="section-head">
+          <h3>🔥 Live Task Feed</h3>
+          <a href="#" onclick="showPage('browse',document.querySelector('[onclick*=browse]'))">View all →</a>
+        </div>
+        <div class="filter-bar" id="dash-filters"></div>
+        <div class="task-list" id="dash-feed"></div>
+      </div>
+      <div class="side-panel">
+        <!-- Post Task -->
+        <div class="panel-card">
+          <div class="section-head"><h3>✏️ Post a Task</h3></div>
+          <label class="form-lbl">Title</label>
+          <input class="form-inp" id="pt-title" placeholder="What do you need help with?">
+          <label class="form-lbl">Description</label>
+          <textarea class="form-ta" id="pt-desc" placeholder="Describe in detail..."></textarea>
+          <label class="form-lbl">Category</label>
+          <select class="form-sel" id="pt-cat">
+            <option value="">Choose category</option>
+            <option>💻 Coding Help</option><option>📊 Presentations</option>
+            <option>📚 Notes Exchange</option><option>🎨 Design</option>
+            <option>🎓 Tutoring</option><option>📐 Assignments</option>
+            <option>📸 Photography</option><option>🌐 Translation</option>
+          </select>
+          <label class="form-lbl">Offering</label>
+          <div class="chip-group" id="pt-chips"></div>
+          <label class="form-lbl">Urgency</label>
+          <select class="form-sel" id="pt-urgency">
+            <option>⏰ Today</option><option>📅 This week</option><option>🗓️ Flexible</option>
+          </select>
+          <button class="btn-submit" onclick="postTask()">Post Task →</button>
+        </div>
+        <!-- Quick leaderboard -->
+        <div class="panel-card">
+          <div class="section-head"><h3>🏆 Top Helpers</h3><a href="#" onclick="showPage('leaderboard',null)">See all</a></div>
+          <div id="mini-lb"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BROWSE PAGE ══ -->
+  <div class="page" id="page-browse">
+    <div class="section-head" style="margin-bottom:1.2rem">
+      <h3>🔍 Browse All Tasks</h3>
+      <span style="color:var(--muted);font-size:.82rem" id="browse-count">Loading...</span>
+    </div>
+    <div class="filter-bar" id="browse-filters"></div>
+    <div class="task-list" id="browse-feed"></div>
+  </div>
+
+  <!-- ══ MY TASKS PAGE ══ -->
+  <div class="page" id="page-my-tasks">
+    <div class="section-head" style="margin-bottom:1.5rem">
+      <h3>📋 My Tasks</h3>
+      <button class="btn-sm" style="border-color:var(--accent);color:var(--accent)" onclick="showPage('dashboard',null)">+ Post New</button>
+    </div>
+    <div class="filter-bar">
+      <button class="fbtn on" onclick="filterMyTasks('all',this)">All</button>
+      <button class="fbtn" onclick="filterMyTasks('open',this)">Open</button>
+      <button class="fbtn" onclick="filterMyTasks('in_progress',this)">In Progress</button>
+      <button class="fbtn" onclick="filterMyTasks('completed',this)">Completed</button>
+    </div>
+    <div class="my-task-grid" id="my-task-grid"></div>
+  </div>
+
+  <!-- ══ CHAT PAGE ══ -->
+  <div class="page" id="page-chat">
+    <h3 style="margin-bottom:1.5rem">💬 Messages</h3>
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:1.2rem;height:calc(100vh - 160px)">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column">
+        <div style="padding:1rem;border-bottom:1px solid var(--border)">
+          <input class="form-inp" style="margin:0" placeholder="Search chats..." id="chat-search">
+        </div>
+        <div style="flex:1;overflow-y:auto" id="chat-rooms"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem" id="chat-header">
+          <div style="font-size:1.4rem">💬</div>
+          <div><div style="font-weight:700;font-size:.9rem">Select a conversation</div><div style="font-size:.75rem;color:var(--muted)">Choose a chat from the left</div></div>
+        </div>
+        <div style="flex:1;padding:1.2rem;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem" id="chat-messages"></div>
+        <div style="padding:1rem;border-top:1px solid var(--border);display:flex;gap:.7rem">
+          <input class="form-inp" style="margin:0;flex:1" placeholder="Type a message..." id="msg-inp" onkeydown="if(event.key==='Enter')sendMsg()">
+          <button class="btn-submit" style="width:auto;padding:.65rem 1.3rem" onclick="sendMsg()">Send ↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NOTIFICATIONS PAGE ══ -->
+  <div class="page" id="page-notifications">
+    <div class="section-head" style="margin-bottom:1.5rem">
+      <h3>🔔 Notifications</h3>
+      <button class="btn-sm" onclick="markAllRead()">Mark all read</button>
+    </div>
+    <div class="notif-list" id="notif-list"></div>
+  </div>
+
+  <!-- ══ LEADERBOARD PAGE ══ -->
+  <div class="page" id="page-leaderboard">
+    <h3 style="margin-bottom:1.5rem">🏆 Campus Leaderboard</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem">
+        <div class="section-head"><h3>Top Helpers</h3></div>
+        <div id="lb-main"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem">
+        <div class="section-head"><h3>Most Active</h3></div>
+        <div id="lb-active"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="ti">🎉</div>
+  <div><div class="toast-title" id="tt"></div><div class="toast-msg" id="tm"></div></div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────
+const API = 'https://taskmate-api-e853.onrender.com/api';
+let TOKEN = localStorage.getItem('tm_token') || '';
+let currentUser = JSON.parse(localStorage.getItem('tm_user') || 'null');
+let currentRoom = null;
+let allTasks = [];
+
+// ─── DATA (mock until backend is running) ────────────
+const MOCK_TASKS = [
+  {id:'t1',title:'Python OOP Assignment — Due Tonight',description:'Need help with classes, inheritance and polymorphism. I have some starter code already.',category:'💻 Coding Help',offer_type:['cash','food'],offer_note:'₹150 + Pizza slice',urgency:'today',status:'open',created_at:new Date(Date.now()-3*60000).toISOString(),users:{name:'Aryan K.',avatar:'',rating:4.9,campus:'NIT Srinagar'},offer_count:2},
+  {id:'t2',title:'Design 8-slide pitch deck for startup idea',description:'Entrepreneurship presentation tomorrow. Clean, modern design needed. Have all content ready.',category:'📊 Presentations',offer_type:['notes','cash'],offer_note:'Econ notes + ₹50',urgency:'today',status:'open',created_at:new Date(Date.now()-9*60000).toISOString(),users:{name:'Sara M.',avatar:'',rating:4.7,campus:'NIT Srinagar'},offer_count:4},
+  {id:'t3',title:'Proofread 2000-word environmental policy essay',description:'Need grammar, flow and argument structure check. Essay is about climate policy in India.',category:'📚 Notes Exchange',offer_type:['voucher'],offer_note:'Canteen voucher worth ₹80',urgency:'this_week',status:'open',created_at:new Date(Date.now()-18*60000).toISOString(),users:{name:'Rohit S.',avatar:'',rating:4.8,campus:'NIT Srinagar'},offer_count:1},
+  {id:'t4',title:'Teach React hooks — 1 hour session',description:'I know basic JS. Need to understand useState, useEffect, and custom hooks for an internship project.',category:'🎓 Tutoring',offer_type:['cash'],offer_note:'₹200 cash',urgency:'this_week',status:'open',created_at:new Date(Date.now()-32*60000).toISOString(),users:{name:'Nadia A.',avatar:'',rating:5.0,campus:'NIT Srinagar'},offer_count:3},
+  {id:'t5',title:'Photo editing for college magazine cover',description:'RAW files ready. Need colour correction, retouching, and typography. Have reference images.',category:'🎨 Design',offer_type:['food','coins'],offer_note:'Lunch + 30 TaskCoins',urgency:'flexible',status:'open',created_at:new Date(Date.now()-60*60000).toISOString(),users:{name:'Zaid H.',avatar:'',rating:4.6,campus:'NIT Srinagar'},offer_count:0},
+  {id:'t6',title:'Explain Fourier transforms for DSP exam',description:'DSP exam in 2 days. Need intuitive explanation + practice problems for Fourier series and DFT.',category:'🎓 Tutoring',offer_type:['cash','notes'],offer_note:'₹100 + my Signal notes',urgency:'today',status:'open',created_at:new Date(Date.now()-90*60000).toISOString(),users:{name:'Priya S.',avatar:'',rating:4.9,campus:'NIT Srinagar'},offer_count:2},
+];
+
+const MOCK_LB = [
+  {name:'Priya S.',total_tasks:47,rating:4.9,skills:['Python','ML'],campus:'NIT Srinagar'},
+  {name:'Aryan K.',total_tasks:38,rating:5.0,skills:['Maths','CAD'],campus:'NIT Srinagar'},
+  {name:'Zaid H.',total_tasks:31,rating:4.8,skills:['Design','Figma'],campus:'NIT Srinagar'},
+  {name:'Sara M.',total_tasks:24,rating:4.7,skills:['Writing','PPT'],campus:'NIT Srinagar'},
+  {name:'Dev P.',total_tasks:19,rating:4.6,skills:['React','Node'],campus:'NIT Srinagar'},
+];
+
+const MOCK_NOTIFS = [
+  {id:1,type:'offer',title:'New offer on your task!',body:'Priya offered to help with your Python assignment for ₹120.',read:false,created_at:new Date(Date.now()-5*60000).toISOString()},
+  {id:2,type:'offer',title:'Another offer received',body:'Zaid sent an offer for your presentation task.',read:false,created_at:new Date(Date.now()-12*60000).toISOString()},
+  {id:3,type:'system',title:'Welcome to TaskMate! 🎉',body:'You\'ve earned 50 TaskCoins to start. Post your first task or help someone!',read:false,created_at:new Date(Date.now()-2*3600000).toISOString()},
+  {id:4,type:'rating',title:'Rohit rated you ⭐ 5/5',body:'"Super fast and accurate, highly recommend!" — for Notes Exchange task.',read:true,created_at:new Date(Date.now()-5*3600000).toISOString()},
+  {id:5,type:'message',title:'Sara sent you a message',body:'Hey, can we meet at the library at 4pm?',read:true,created_at:new Date(Date.now()-8*3600000).toISOString()},
+];
+
+const MOCK_CHATS = [
+  {room_id:'room1',partner:'Sara M.',last:'Hey, can we meet at 4pm?',time:'2m ago',unread:2,avatar:'S',color:'#4f9cf9'},
+  {room_id:'room2',partner:'Zaid H.',last:'Done! Sending files now.',time:'1h ago',unread:0,avatar:'Z',color:'#7c5cfc'},
+  {room_id:'room3',partner:'Priya S.',last:'Thanks a lot! 🙏',time:'3h ago',unread:0,avatar:'P',color:'#3ecf8e'},
+];
+
+// ─── HELPERS ─────────────────────────────────────────
+function timeAgo(dt){
+  const d=(Date.now()-new Date(dt))/1000;
+  if(d<60)return'just now';if(d<3600)return`${Math.floor(d/60)}m ago`;
+  if(d<86400)return`${Math.floor(d/3600)}h ago`;return`${Math.floor(d/86400)}d ago`;
+}
+function catColor(c){
+  if(c.includes('Cod'))return'tag-blue';if(c.includes('Design'))return'tag-orange';
+  if(c.includes('Tut'))return'tag-purple';if(c.includes('Notes'))return'tag-green';
+  return'tag-blue';
+}
+function randColor(){const c=['#4f9cf9','#7c5cfc','#f97b4f','#3ecf8e','#f5c542'];return c[Math.floor(Math.random()*c.length)]}
+function toast(icon,title,msg){
+  document.getElementById('ti').textContent=icon;
+  document.getElementById('tt').textContent=title;
+  document.getElementById('tm').textContent=msg;
+  const t=document.getElementById('toast');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ─── PAGE NAV ─────────────────────────────────────────
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const titles={dashboard:'Dashboard',browse:'Browse Tasks','my-tasks':'My Tasks',chat:'Messages',notifications:'Notifications',leaderboard:'Leaderboard'};
+  document.getElementById('page-title').textContent=titles[id]||'Dashboard';
+  if(id==='browse')renderBrowse();
+  if(id==='my-tasks')renderMyTasks();
+  if(id==='notifications')renderNotifications();
+  if(id==='leaderboard')renderLeaderboard();
+  if(id==='chat')renderChats();
+}
+
+// ─── STAT GRID ────────────────────────────────────────
+function renderStats(){
+  const stats=[
+    {icon:'📋',num:MOCK_TASKS.length,label:'Tasks Posted',delta:'+3 today',up:true,col:'var(--accent)'},
+    {icon:'⚡',num:8,label:'Offers Received',delta:'+2 today',up:true,col:'var(--accent2)'},
+    {icon:'✅',num:3,label:'Tasks Completed',delta:'This week',up:true,col:'var(--green)'},
+    {icon:'🪙',num:currentUser?.coins||50,label:'TaskCoins',delta:'Earn more →',up:true,col:'var(--yellow)'},
+  ];
+  document.getElementById('stat-grid').innerHTML=stats.map(s=>`
+    <div class="stat-card">
+      <span class="sc-icon">${s.icon}</span>
+      <div class="sc-num" style="color:${s.col}">${s.num}</div>
+      <div class="sc-label">${s.label}</div>
+      <div class="sc-delta ${s.up?'delta-up':'delta-down'}">${s.up?'↑':'↓'} ${s.delta}</div>
+    </div>`).join('');
+}
+
+// ─── TASK CARD ────────────────────────────────────────
+function taskCardHTML(t){
+  const col=catColor(t.category);
+  const oc=t.offer_count||0;
+  return`<div class="task-card" onclick="openTask('${t.id}')">
+    <div class="tc-row">
+      <div class="tc-title">${t.title}</div>
+      <span class="tag ${col}">${t.category}</span>
+    </div>
+    <div class="tc-desc">${t.description}</div>
+    <div class="tc-foot">
+      <div class="user-chip"><div class="ava" style="background:${randColor()}">${t.users?.name?.[0]||'?'}</div>${t.users?.name||'Unknown'}</div>
+      <span class="offer-tag">${t.offer_note||'Open to offers'}</span>
+      ${oc>0?`<span class="offers-count">⚡ ${oc} offers</span>`:''}
+      <span class="tag ${t.urgency==='today'?'tag-red':'tag-blue'}" style="margin-left:auto">${t.urgency==='today'?'🔴 Urgent':'📅 '+t.urgency}</span>
+      <span class="tc-time">${timeAgo(t.created_at)}</span>
+    </div>
+  </div>`;
+}
+
+function openTask(id){toast('⚡','Task opened!','You can now view details and send an offer.')}
+
+// ─── DASHBOARD FEED ───────────────────────────────────
+function renderDashFeed(filter='All'){
+  allTasks=MOCK_TASKS;
+  const shown=filter==='All'?allTasks:allTasks.filter(t=>t.category.toLowerCase().includes(filter.toLowerCase()));
+  document.getElementById('dash-feed').innerHTML=shown.map(taskCardHTML).join('');
+}
+
+function renderDashFilters(){
+  const filters=['All','Coding','Design','Tutoring','Notes','Urgent'];
+  document.getElementById('dash-filters').innerHTML=filters.map((f,i)=>
+    `<button class="fbtn ${i===0?'on':''}" onclick="dashFilter('${f}',this)">${f}</button>`).join('');
+}
+
+function dashFilter(f,btn){
+  document.querySelectorAll('#dash-filters .fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderDashFeed(f);
+}
+
+// ─── BROWSE ───────────────────────────────────────────
+function renderBrowse(filter='All'){
+  const filters=['All','Coding','Design','Tutoring','Notes','Urgent'];
+  document.getElementById('browse-filters').innerHTML=filters.map((f,i)=>
+    `<button class="fbtn ${i===0?'on':''}" onclick="browseFilter('${f}',this)">${f}</button>`).join('');
+  const shown=filter==='All'?MOCK_TASKS:MOCK_TASKS.filter(t=>t.category.toLowerCase().includes(filter.toLowerCase())||filter==='Urgent'&&t.urgency==='today');
+  document.getElementById('browse-feed').innerHTML=shown.map(taskCardHTML).join('');
+  document.getElementById('browse-count').textContent=`${shown.length} tasks on campus`;
+}
+function browseFilter(f,btn){
+  document.querySelectorAll('#browse-filters .fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderBrowse(f);
+}
+
+// ─── MY TASKS ─────────────────────────────────────────
+const MY_TASKS=[
+  {id:'m1',title:'Python OOP Assignment',category:'💻 Coding Help',description:'Need help with OOP concepts.',status:'open',created_at:new Date(Date.now()-2*3600000).toISOString(),offer_count:3},
+  {id:'m2',title:'Resume Review',category:'📚 Notes Exchange',description:'Review and improve my resume for internships.',status:'in_progress',created_at:new Date(Date.now()-24*3600000).toISOString(),offer_count:1},
+  {id:'m3',title:'Physics Numericals',category:'🎓 Tutoring',description:'Solved 10 optics numericals.',status:'completed',created_at:new Date(Date.now()-3*24*3600000).toISOString(),offer_count:0},
+];
+function renderMyTasks(filter='all'){
+  const shown=filter==='all'?MY_TASKS:MY_TASKS.filter(t=>t.status===filter);
+  if(!shown.length){
+    document.getElementById('my-task-grid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><h4>No tasks here</h4><p>Post a task from the dashboard</p></div>`;return;
+  }
+  document.getElementById('my-task-grid').innerHTML=shown.map(t=>`
+    <div class="my-task-card">
+      <div class="mtc-status ${t.status==='open'?'status-open':t.status==='in_progress'?'status-progress':'status-done'}">
+        ${t.status==='open'?'● Open':t.status==='in_progress'?'● In Progress':'✓ Completed'}
+      </div>
+      <div class="mtc-title">${t.title}</div>
+      <div class="mtc-desc">${t.description}</div>
+      <div class="mtc-foot">
+        <span class="tag tag-blue" style="font-size:.68rem">${t.category}</span>
+        ${t.offer_count>0?`<span class="mtc-offers">⚡ ${t.offer_count} offers</span>`:''}
+        <span class="mtc-time">${timeAgo(t.created_at)}</span>
+        ${t.status==='open'?`<button class="btn-sm" onclick="toast('✅','Task updated!','Status changed.')">Mark done</button>
+         <button class="btn-sm danger" onclick="toast('🗑️','Task deleted','Your task has been removed.')">Delete</button>`:''}
+      </div>
+    </div>`).join('');
+}
+function filterMyTasks(f,btn){
+  document.querySelectorAll('.filter-bar .fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderMyTasks(f);
+}
+
+// ─── MINI LEADERBOARD ─────────────────────────────────
+function renderMiniLB(){
+  document.getElementById('mini-lb').innerHTML=MOCK_LB.slice(0,4).map((u,i)=>`
+    <div class="lb-row">
+      <div class="lb-rank ${i<3?'top'}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="ava" style="background:${randColor()};width:28px;height:28px;font-size:.7rem">${u.name[0]}</div>
+      <div style="flex:1"><div class="lb-name">${u.name}</div><div class="lb-sub">${u.skills.join(' · ')}</div></div>
+      <div class="lb-score">⭐ ${u.rating}</div>
+    </div>`).join('');
+}
+
+// ─── FULL LEADERBOARD ─────────────────────────────────
+function renderLeaderboard(){
+  const html=(list)=>list.map((u,i)=>`
+    <div class="lb-row">
+      <div class="lb-rank ${i<3?'top'}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="ava" style="background:${randColor()};width:32px;height:32px;font-size:.75rem;flex-shrink:0">${u.name[0]}</div>
+      <div style="flex:1"><div class="lb-name">${u.name}</div><div class="lb-sub">${u.skills?.join(' · ')||''} · ${u.total_tasks} tasks</div></div>
+      <div class="lb-score">⭐ ${u.rating}</div>
+    </div>`).join('');
+  document.getElementById('lb-main').innerHTML=html(MOCK_LB);
+  document.getElementById('lb-active').innerHTML=html([...MOCK_LB].sort((a,b)=>b.total_tasks-a.total_tasks));
+}
+
+// ─── NOTIFICATIONS ────────────────────────────────────
+function renderNotifications(){
+  document.getElementById('notif-list').innerHTML=MOCK_NOTIFS.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}">
+      <div class="notif-icon">${n.type==='offer'?'⚡':n.type==='rating'?'⭐':n.type==='message'?'💬':'📢'}</div>
+      <div style="flex:1">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-body">${n.body}</div>
+        <div class="notif-time">${timeAgo(n.created_at)}</div>
+      </div>
+      ${!n.read?'<div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px"></div>':''}
+    </div>`).join('');
+}
+function markAllRead(){
+  MOCK_NOTIFS.forEach(n=>n.read=true);
+  renderNotifications();
+  document.getElementById('notif-dot').style.display='none';
+  document.getElementById('badge-notif').style.display='none';
+  toast('✅','All caught up!','All notifications marked as read.');
+}
+
+// ─── CHAT ─────────────────────────────────────────────
+const MOCK_MSGS={room1:[
+  {sender:'Sara M.',content:"Hey! Are you available to help with my presentation?",time:'10:02 AM',mine:false},
+  {sender:'Me',content:"Yes! What's the topic and how many slides?",time:'10:04 AM',mine:true},
+  {sender:'Sara M.',content:"Startup pitch — 8 slides. I have all content ready, just need good design.",time:'10:05 AM',mine:false},
+  {sender:'Me',content:"Perfect, I can do that. When's your deadline?",time:'10:06 AM',mine:true},
+  {sender:'Sara M.',content:"Tomorrow morning 9am 😬",time:'10:07 AM',mine:false},
+  {sender:'Me',content:"No worries, I'll get it done tonight. Share your content doc.",time:'10:08 AM',mine:true},
+  {sender:'Sara M.',content:"Hey, can we meet at 4pm?",time:'10:30 AM',mine:false},
+]};
+
+function renderChats(){
+  document.getElementById('chat-rooms').innerHTML=MOCK_CHATS.map(c=>`
+    <div onclick="openRoom('${c.room_id}','${c.partner}','${c.color}')" style="padding:1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s;display:flex;gap:.75rem;align-items:center" onmouseover="this.style.background='var(--faint)'" onmouseout="this.style.background='none'">
+      <div class="ava" style="background:${c.color};width:38px;height:38px;font-size:.9rem;flex-shrink:0">${c.avatar}</div>
+      <div style="flex:1;overflow:hidden">
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;font-size:.88rem">${c.partner}</span><span style="font-size:.7rem;color:var(--muted)">${c.time}</span></div>
+        <div style="font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.last}</div>
+      </div>
+      ${c.unread>0?`<div style="background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:999px;flex-shrink:0">${c.unread}</div>`:''}
+    </div>`).join('');
+}
+
+function openRoom(rid,name,color){
+  currentRoom=rid;
+  document.getElementById('chat-header').innerHTML=`
+    <div class="ava" style="background:${color};width:38px;height:38px;font-size:.9rem">${name[0]}</div>
+    <div><div style="font-weight:700;font-size:.9rem">${name}</div><div style="font-size:.75rem;color:var(--green)">● Online</div></div>`;
+  const msgs=MOCK_MSGS[rid]||[];
+  const box=document.getElementById('chat-messages');
+  box.innerHTML=msgs.map(m=>`
+    <div style="display:flex;flex-direction:column;align-items:${m.mine?'flex-end':'flex-start'}">
+      <div style="max-width:68%;background:${m.mine?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--card2)'};color:${m.mine?'#fff':'var(--text)'};padding:.7rem 1rem;border-radius:${m.mine?'16px 16px 4px 16px':'16px 16px 16px 4px'};font-size:.85rem;line-height:1.5">${m.content}</div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:.25rem">${m.time}</div>
+    </div>`).join('');
+  box.scrollTop=box.scrollHeight;
+}
+
+function sendMsg(){
+  const inp=document.getElementById('msg-inp');
+  const val=inp.value.trim();
+  if(!val||!currentRoom)return;
+  const box=document.getElementById('chat-messages');
+  box.innerHTML+=`<div style="display:flex;flex-direction:column;align-items:flex-end">
+    <div style="max-width:68%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.7rem 1rem;border-radius:16px 16px 4px 16px;font-size:.85rem;line-height:1.5">${val}</div>
+    <div style="font-size:.68rem;color:var(--muted);margin-top:.25rem">just now</div>
+  </div>`;
+  inp.value='';box.scrollTop=box.scrollHeight;
+}
+
+// ─── POST TASK ────────────────────────────────────────
+const OFFER_CHIPS=['💰 Cash','🍕 Food','📓 Notes','🪙 TaskCoins','🤝 Favor'];
+function renderPostChips(){
+  document.getElementById('pt-chips').innerHTML=OFFER_CHIPS.map(c=>
+    `<button class="chip" onclick="this.classList.toggle('on')">${c}</button>`).join('');
+}
+function postTask(){
+  const title=document.getElementById('pt-title').value.trim();
+  if(!title){toast('⚠️','Add a title','Please describe your task first.');return}
+  const newT={id:'new-'+Date.now(),title,description:document.getElementById('pt-desc').value||'No description.',
+    category:document.getElementById('pt-cat').value||'📋 General',
+    offer_note:Array.from(document.querySelectorAll('#pt-chips .on')).map(c=>c.textContent).join(', ')||'Open to offers',
+    urgency:document.getElementById('pt-urgency').value.includes('Today')?'today':'flexible',
+    status:'open',created_at:new Date().toISOString(),users:{name:currentUser?.name||'You',avatar:'',rating:5.0},offer_count:0};
+  MOCK_TASKS.unshift(newT);renderDashFeed();
+  document.getElementById('pt-title').value='';document.getElementById('pt-desc').value='';
+  toast('🚀','Task Posted!','Your task is live. Waiting for offers...');
+}
+
+// ─── SEARCH ──────────────────────────────────────────
+function searchTasks(q){
+  if(!q){renderDashFeed();return}
+  const res=MOCK_TASKS.filter(t=>t.title.toLowerCase().includes(q.toLowerCase())||t.description.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('dash-feed').innerHTML=res.length?res.map(taskCardHTML).join(''):`<div class="empty"><div class="empty-icon">🔍</div><h4>No results for "${q}"</h4></div>`;
+}
+
+// ─── INIT ─────────────────────────────────────────────
+renderStats();renderDashFilters();renderDashFeed();renderMiniLB();renderPostChips();
+
+// Update sidebar user info
+if(currentUser){
+  document.getElementById('sb-name').textContent=currentUser.name||'Student';
+  document.getElementById('sb-campus').textContent=currentUser.campus||'Campus';
+  document.getElementById('sb-coins').textContent='🪙 '+(currentUser.coins||50);
+}
+
+// Simulate live notification
+setTimeout(()=>{toast('⚡','New offer received!','Priya wants to help with your Python task for ₹120.')},4000);
+setTimeout(()=>{toast('🟢','Aryan just posted a task','Needs help with DSP assignment — ₹150 offer.')},10000);
+</script>
+</body>
+</html>

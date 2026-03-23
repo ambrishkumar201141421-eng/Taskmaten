@@ -1,989 +1,953 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TaskMate — Campus Task Exchange</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskMate – Campus Task Exchange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --card: #16161f;
-    --border: #2a2a3a;
-    --accent: #c8f53a;
-    --accent2: #7b5ea7;
-    --accent3: #ff6b6b;
-    --text: #f0f0f5;
-    --muted: #888899;
-    --glow: 0 0 30px rgba(200,245,58,0.25);
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-body: 'Syne', sans-serif;
-    --font-mono: 'Space Mono', monospace;
+    --bg: #080b10;
+    --bg2: #0d1117;
+    --card: #111620;
+    --card2: #161d2a;
+    --border: #1e2a3a;
+    --accent: #4f9cf9;
+    --accent2: #7c5cfc;
+    --accent3: #f97b4f;
+    --green: #3ecf8e;
+    --text: #e8edf5;
+    --muted: #8896a7;
+    --faint: #1a2233;
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
-
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font-body);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
     overflow-x: hidden;
-    cursor: none;
   }
+  h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; line-height: 1.15; }
 
-  /* CUSTOM CURSOR */
-  .cursor {
-    width: 12px; height: 12px;
-    background: var(--accent);
-    border-radius: 50%;
-    position: fixed; top: 0; left: 0;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
-    mix-blend-mode: difference;
-  }
-  .cursor-ring {
-    width: 36px; height: 36px;
-    border: 1.5px solid var(--accent);
-    border-radius: 50%;
-    position: fixed; top: 0; left: 0;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: left 0.08s, top 0.08s;
-    opacity: 0.5;
-  }
-
-  /* NOISE OVERLAY */
+  /* ─── NOISE OVERLAY ─── */
   body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 1000; opacity: 0.4;
+    content:'';
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none; z-index:0; opacity:.4;
   }
 
-  /* NAV */
+  /* ─── NAV ─── */
   nav {
-    position: fixed; top: 0; width: 100%; z-index: 500;
-    padding: 20px 60px;
-    display: flex; justify-content: space-between; align-items: center;
-    backdrop-filter: blur(20px);
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 6%;
+    background: rgba(8,11,16,0.7);
+    backdrop-filter: blur(18px);
     border-bottom: 1px solid rgba(255,255,255,0.04);
-    background: rgba(10,10,15,0.7);
   }
   .logo {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    letter-spacing: 2px;
-    color: var(--accent);
-    text-shadow: var(--glow);
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
   }
-  .logo span { color: var(--text); }
-  nav ul { list-style: none; display: flex; gap: 40px; }
-  nav ul li a {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-  nav ul li a:hover { color: var(--accent); }
+  .logo span { color: var(--accent3); -webkit-text-fill-color: var(--accent3); }
+  nav ul { list-style: none; display: flex; gap: 2rem; }
+  nav ul a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 400; transition: color .2s; }
+  nav ul a:hover { color: var(--text); }
   .nav-cta {
-    background: var(--accent);
-    color: var(--bg) !important;
-    padding: 8px 20px;
-    border-radius: 2px;
-    font-weight: 700 !important;
-    transition: box-shadow 0.2s !important;
+    background: var(--accent); color: #fff; border: none; padding: .6rem 1.4rem;
+    border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: .9rem; cursor: pointer; transition: all .2s;
   }
-  .nav-cta:hover { box-shadow: var(--glow); color: var(--bg) !important; }
+  .nav-cta:hover { background: #6aaaff; transform: translateY(-1px); }
 
-  /* HERO */
+  /* ─── HERO ─── */
   .hero {
     min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 140px 60px 80px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 7rem 6% 4rem;
     position: relative; overflow: hidden;
   }
-  .hero-grid {
-    position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(200,245,58,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(200,245,58,0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
-  }
   .hero-orb {
-    position: absolute;
-    width: 600px; height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(123,94,167,0.15) 0%, transparent 70%);
-    top: -100px; right: -150px;
-    pointer-events: none;
+    position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none;
+    animation: orbFloat 8s ease-in-out infinite alternate;
   }
-  .hero-orb2 {
-    position: absolute;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(200,245,58,0.08) 0%, transparent 70%);
-    bottom: 50px; left: -100px;
-    pointer-events: none;
+  .orb1 { width: 480px; height: 480px; background: rgba(79,156,249,0.12); top: -10%; left: -10%; }
+  .orb2 { width: 380px; height: 380px; background: rgba(124,92,252,0.1); bottom: -5%; right: -5%; animation-delay: -3s; }
+  .orb3 { width: 260px; height: 260px; background: rgba(62,207,142,0.07); top: 40%; left: 55%; animation-delay: -6s; }
+  @keyframes orbFloat { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: rgba(79,156,249,0.1); border: 1px solid rgba(79,156,249,0.25);
+    padding: .35rem 1rem; border-radius: 999px; margin-bottom: 1.5rem;
+    font-size: .8rem; color: var(--accent); font-weight: 500;
+    animation: fadeUp .8s ease both;
   }
-  .hero-tag {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--accent);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    display: inline-flex; align-items: center; gap: 10px;
-    margin-bottom: 24px;
-    opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+  .hero-badge-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(62,207,142,0.5)} 50%{box-shadow:0 0 0 6px rgba(62,207,142,0)} }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 1.4rem;
+    animation: fadeUp .8s .1s ease both;
   }
-  .hero-tag::before {
-    content: ''; display: block;
-    width: 40px; height: 1px; background: var(--accent);
+  .hero h1 .grad {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-size: 200%; animation: gradShift 4s ease infinite alternate;
   }
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(5rem, 11vw, 10rem);
-    line-height: 0.9;
-    letter-spacing: 2px;
-    margin-bottom: 32px;
-    opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
-  }
-  h1 em {
-    font-style: normal;
-    color: var(--accent);
-    text-shadow: var(--glow);
-  }
-  h1 .stroke {
-    -webkit-text-stroke: 1px rgba(240,240,245,0.3);
-    color: transparent;
-  }
-  .hero-sub {
-    max-width: 540px;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    color: var(--muted);
-    margin-bottom: 48px;
-    opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+  @keyframes gradShift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+
+  .hero p {
+    max-width: 540px; color: var(--muted); font-size: 1.1rem;
+    margin-bottom: 2.2rem;
+    animation: fadeUp .8s .2s ease both;
   }
   .hero-actions {
-    display: flex; gap: 16px; align-items: center;
-    opacity: 0; animation: fadeUp 0.7s 0.65s forwards;
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp .8s .3s ease both;
   }
   .btn-primary {
-    background: var(--accent);
-    color: var(--bg);
-    padding: 16px 36px;
-    font-family: var(--font-body);
-    font-weight: 800;
-    font-size: 0.9rem;
-    border: none;
-    border-radius: 3px;
-    cursor: none;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: box-shadow 0.25s, transform 0.15s;
-    text-decoration: none; display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; border: none; padding: .85rem 2rem;
+    border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1rem; cursor: pointer;
+    transition: all .25s; box-shadow: 0 0 30px rgba(79,156,249,0.3);
   }
-  .btn-primary:hover { box-shadow: var(--glow); transform: translateY(-2px); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 45px rgba(79,156,249,0.45); }
   .btn-ghost {
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 16px 36px;
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.9rem;
-    border-radius: 3px;
-    cursor: none;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: border-color 0.2s, color 0.2s;
-    text-decoration: none; display: inline-block;
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+    padding: .85rem 2rem; border-radius: 10px; font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: 1rem; cursor: pointer;
+    transition: all .25s;
   }
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
 
-  .hero-stats {
-    position: absolute; right: 60px; bottom: 80px;
-    display: flex; flex-direction: column; gap: 24px; text-align: right;
-    opacity: 0; animation: fadeIn 1s 1s forwards;
+  /* Stats bar */
+  .stats-bar {
+    display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp .8s .5s ease both;
   }
-  .stat-num {
-    font-family: var(--font-display);
-    font-size: 3rem;
-    color: var(--accent);
-    line-height: 1;
-  }
-  .stat-label {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text); }
+  .stat-label { color: var(--muted); font-size: .82rem; }
 
-  /* MARQUEE */
+  /* ─── SCROLL MARQUEE ─── */
   .marquee-wrap {
-    background: var(--accent);
-    padding: 14px 0;
-    overflow: hidden;
-    position: relative;
+    overflow: hidden; padding: 1.2rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    margin-top: 2rem;
   }
-  .marquee-inner {
-    display: flex; gap: 60px;
-    white-space: nowrap;
-    animation: marquee 20s linear infinite;
+  .marquee { display: flex; gap: 2rem; width: max-content; animation: marquee 18s linear infinite; }
+  .marquee-item {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .82rem; color: var(--muted); white-space: nowrap;
+    padding: 0 1rem;
   }
-  .marquee-inner span {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    color: var(--bg);
-    letter-spacing: 3px;
-    flex-shrink: 0;
-  }
-  .marquee-inner .dot { color: var(--bg); opacity: 0.4; }
+  .marquee-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-  /* HOW IT WORKS */
-  .section { padding: 120px 60px; }
+  /* ─── SECTION COMMONS ─── */
+  section { padding: 5rem 6%; position: relative; }
   .section-label {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--accent);
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 12px;
+    font-size: .78rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .8rem;
   }
-  .section-label::after {
-    content: ''; flex: 1; max-width: 60px;
-    height: 1px; background: var(--accent); opacity: 0.5;
+  .section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800;
+    letter-spacing: -1px; margin-bottom: 1rem;
   }
-  h2 {
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 6vw, 5.5rem);
-    line-height: 0.95;
-    letter-spacing: 1px;
-    margin-bottom: 80px;
-  }
-  h2 em { font-style: normal; color: var(--accent); }
+  .section-sub { color: var(--muted); max-width: 520px; font-size: 1rem; margin-bottom: 3rem; }
 
-  .steps-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-  }
-  .step {
-    background: var(--card);
-    padding: 48px 36px;
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-  }
-  .step:hover { border-color: var(--accent); }
-  .step::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent);
-    transform: scaleX(0); transform-origin: left;
-    transition: transform 0.4s;
-  }
-  .step:hover::before { transform: scaleX(1); }
-  .step-num {
-    font-family: var(--font-display);
-    font-size: 6rem;
-    color: rgba(200,245,58,0.06);
-    line-height: 1;
-    position: absolute; top: 16px; right: 24px;
-  }
-  .step-icon {
-    font-size: 2.4rem;
-    margin-bottom: 24px;
-  }
-  .step h3 {
-    font-family: var(--font-body);
-    font-weight: 800;
-    font-size: 1.1rem;
-    margin-bottom: 12px;
-    letter-spacing: 0.5px;
-  }
-  .step p {
-    color: var(--muted);
-    font-size: 0.88rem;
-    line-height: 1.7;
-  }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(28px); } to { opacity:1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  /* TASK CARDS SECTION */
-  .tasks-section { padding: 120px 60px; background: var(--surface); }
-  .tasks-header {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    margin-bottom: 60px;
+  /* ─── HOW IT WORKS ─── */
+  .how-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;
   }
-  .task-feed {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+  .how-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2rem 1.6rem;
+    transition: all .3s; position: relative; overflow: hidden;
   }
+  .how-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0; transition: opacity .3s;
+  }
+  .how-card:hover { border-color: rgba(79,156,249,0.3); transform: translateY(-4px); }
+  .how-card:hover::before { opacity: 1; }
+  .how-num {
+    font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800;
+    color: var(--faint); margin-bottom: .8rem; line-height: 1;
+  }
+  .how-icon { font-size: 1.8rem; margin-bottom: .8rem; display: block; }
+  .how-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
+  .how-card p { color: var(--muted); font-size: .88rem; line-height: 1.6; }
+
+  /* ─── FEATURES ─── */
+  .features-section { background: var(--bg2); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+  .feat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+    transition: all .3s;
+  }
+  .feat-card:hover { border-color: rgba(124,92,252,0.3); transform: translateY(-3px); }
+  .feat-icon-wrap {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .feat-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+  .feat-card p { color: var(--muted); font-size: .85rem; line-height: 1.55; }
+
+  /* ─── TASK FEED DEMO ─── */
+  .demo-section { background: var(--bg); }
+  .demo-wrap {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;
+  }
+  .demo-left h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; }
+  .demo-left p { color: var(--muted); margin-bottom: 2rem; }
+  .filter-pills { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .pill {
+    padding: .4rem .9rem; border-radius: 999px; font-size: .78rem; font-weight: 600;
+    border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all .2s;
+    background: transparent;
+  }
+  .pill.active, .pill:hover {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .task-feed { display: flex; flex-direction: column; gap: .9rem; }
   .task-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 28px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-    cursor: none;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.2rem 1.4rem;
+    transition: all .28s; cursor: pointer; position: relative; overflow: hidden;
   }
-  .task-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-    border-color: rgba(200,245,58,0.25);
-  }
+  .task-card:hover { border-color: rgba(79,156,249,0.35); transform: translateX(4px); }
   .task-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(200,245,58,0.04) 0%, transparent 60%);
-    pointer-events: none;
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    opacity: 0; transition: opacity .25s;
   }
-  .task-cat {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 2px;
-    display: inline-block;
-    margin-bottom: 16px;
-    font-weight: 700;
+  .task-card:hover::after { opacity: 1; }
+  .tc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: .5rem; }
+  .tc-title { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; }
+  .tc-badge {
+    font-size: .72rem; font-weight: 600; padding: .25rem .7rem;
+    border-radius: 999px; white-space: nowrap; flex-shrink: 0;
   }
-  .cat-code { background: rgba(123,94,167,0.2); color: #b08ad4; }
-  .cat-design { background: rgba(255,107,107,0.15); color: #ff9a9a; }
-  .cat-notes { background: rgba(200,245,58,0.15); color: var(--accent); }
-  .cat-tutor { background: rgba(74,214,255,0.15); color: #7dd8f5; }
-  .cat-other { background: rgba(255,200,50,0.12); color: #ffc842; }
-
-  .task-title {
-    font-weight: 700;
-    font-size: 1rem;
-    margin-bottom: 10px;
-    line-height: 1.4;
+  .badge-blue { background: rgba(79,156,249,0.15); color: var(--accent); }
+  .badge-purple { background: rgba(124,92,252,0.15); color: var(--accent2); }
+  .badge-orange { background: rgba(249,123,79,0.15); color: var(--accent3); }
+  .badge-green { background: rgba(62,207,142,0.15); color: var(--green); }
+  .tc-desc { color: var(--muted); font-size: .83rem; margin-bottom: .8rem; }
+  .tc-footer { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
+  .tc-offer {
+    font-family: 'Syne', sans-serif; font-size: .82rem; font-weight: 700;
+    color: var(--green); background: rgba(62,207,142,0.1);
+    padding: .2rem .7rem; border-radius: 999px;
   }
-  .task-desc {
-    color: var(--muted);
-    font-size: 0.82rem;
-    line-height: 1.6;
-    margin-bottom: 24px;
-  }
-  .task-footer {
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .task-offer {
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    color: var(--accent);
-  }
-  .task-deadline {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-  .task-user {
-    display: flex; align-items: center; gap: 10px;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
+  .tc-time { font-size: .76rem; color: var(--muted); margin-left: auto; }
+  .tc-user { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: var(--muted); }
   .avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
+    width: 22px; height: 22px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .task-user-name { font-size: 0.8rem; font-weight: 600; }
-  .task-user-rep { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); }
-  .task-urgent {
-    position: absolute; top: 20px; right: 20px;
-    background: var(--accent3);
-    color: white;
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    padding: 3px 8px;
-    border-radius: 2px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    animation: pulse 2s infinite;
+    font-size: .6rem; font-weight: 700; color: #fff;
   }
 
-  /* EXCHANGE TYPES */
-  .exchange-section { padding: 120px 60px; }
-  .exchange-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
+  /* ─── POST TASK DEMO ─── */
+  .post-panel {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem; position: sticky; top: 90px;
   }
-  .exchange-item {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 40px 24px;
-    text-align: center;
-    transition: border-color 0.3s, background 0.3s;
+  .post-panel h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1.1rem; }
+  .form-label { font-size: .78rem; font-weight: 600; color: var(--muted); margin-bottom: .4rem; display: block; letter-spacing: .5px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: .75rem 1rem; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: .9rem; outline: none;
+    transition: border-color .2s;
   }
-  .exchange-item:hover { border-color: var(--accent); background: rgba(200,245,58,0.04); }
-  .exchange-emoji { font-size: 3rem; margin-bottom: 16px; display: block; }
-  .exchange-label {
-    font-weight: 800;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-    display: block;
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-select { appearance: none; cursor: pointer; }
+  .offer-chips { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+  .offer-chip {
+    padding: .35rem .85rem; border-radius: 999px; font-size: .78rem; font-weight: 600;
+    border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all .2s;
+    background: transparent;
   }
-  .exchange-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .offer-chip.sel { background: rgba(79,156,249,0.15); border-color: var(--accent); color: var(--accent); }
+  .btn-post {
+    width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; border: none; padding: .9rem; border-radius: 10px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    cursor: pointer; transition: all .25s; margin-top: .5rem;
+    box-shadow: 0 4px 20px rgba(79,156,249,0.25);
+  }
+  .btn-post:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79,156,249,0.4); }
 
-  /* FEATURES */
-  .features-section { padding: 120px 60px; background: var(--surface); }
-  .features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
+  /* ─── CATEGORIES ─── */
+  .cat-section { background: var(--bg2); }
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+  .cat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.6rem 1rem; text-align: center;
+    cursor: pointer; transition: all .28s;
   }
-  .feature-block {
-    padding: 56px 52px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    display: flex; gap: 28px;
-    transition: border-color 0.3s;
-  }
-  .feature-block:hover { border-color: rgba(200,245,58,0.3); }
-  .feature-icon-wrap {
-    width: 52px; height: 52px;
-    background: rgba(200,245,58,0.1);
-    border-radius: 4px;
+  .cat-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+  .cat-card:hover .cat-icon-bg { transform: scale(1.1); }
+  .cat-icon-bg {
+    width: 52px; height: 52px; border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-    transition: background 0.3s;
+    font-size: 1.5rem; margin: 0 auto .8rem; transition: transform .25s;
   }
-  .feature-block:hover .feature-icon-wrap { background: rgba(200,245,58,0.2); }
-  .feature-block h3 {
-    font-weight: 800;
-    font-size: 1.05rem;
-    margin-bottom: 10px;
-  }
-  .feature-block p { color: var(--muted); font-size: 0.84rem; line-height: 1.7; }
+  .cat-card h4 { font-size: .9rem; font-weight: 700; margin-bottom: .2rem; }
+  .cat-card span { color: var(--muted); font-size: .78rem; }
 
-  /* CTA */
+  /* ─── REPUTATION ─── */
+  .rep-section { background: var(--bg); }
+  .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .rep-right { display: flex; flex-direction: column; gap: 1rem; }
+  .rep-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.4rem;
+    display: flex; align-items: center; gap: 1rem;
+    transition: all .3s;
+  }
+  .rep-card:hover { border-color: var(--accent2); transform: translateX(6px); }
+  .rep-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .rep-info h4 { font-size: .9rem; font-weight: 700; margin-bottom: .15rem; }
+  .rep-info p { color: var(--muted); font-size: .78rem; }
+  .rep-badge {
+    margin-left: auto; font-size: .75rem; font-weight: 700;
+    background: rgba(62,207,142,0.1); color: var(--green);
+    padding: .3rem .8rem; border-radius: 999px;
+  }
+  .stars { color: #f5c542; font-size: .85rem; margin-top: .15rem; letter-spacing: 1px; }
+
+  /* ─── EXCHANGE TYPES ─── */
+  .exchange-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.2rem; }
+  .ex-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem 1.4rem; text-align: center;
+    transition: all .28s;
+  }
+  .ex-card:hover { transform: translateY(-5px); }
+  .ex-emoji { font-size: 2.2rem; margin-bottom: .8rem; display: block; }
+  .ex-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+  .ex-card p { color: var(--muted); font-size: .83rem; }
+
+  /* ─── CTA ─── */
   .cta-section {
-    padding: 160px 60px;
-    text-align: center;
-    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, rgba(79,156,249,0.08), rgba(124,92,252,0.08));
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    text-align: center; padding: 6rem 6%;
   }
-  .cta-section::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 60% 70% at 50% 50%,
-      rgba(200,245,58,0.07) 0%, transparent 70%);
-    pointer-events: none;
+  .cta-section h2 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; letter-spacing: -1.5px; margin-bottom: 1rem; }
+  .cta-section p { color: var(--muted); max-width: 480px; margin: 0 auto 2.5rem; }
+  .cta-email-row {
+    display: flex; gap: .7rem; max-width: 420px; margin: 0 auto;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: .5rem;
   }
-  .cta-section h2 { font-size: clamp(4rem, 9vw, 8rem); margin-bottom: 28px; }
-  .cta-section p { color: var(--muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 48px; line-height: 1.7; }
-  .cta-actions { display: flex; gap: 16px; justify-content: center; }
+  .cta-email-row input {
+    flex: 1; background: none; border: none; outline: none; padding: .6rem .8rem;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: .9rem;
+  }
+  .cta-email-row input::placeholder { color: var(--muted); }
+  .cta-email-row button {
+    background: var(--accent); color: #fff; border: none; padding: .6rem 1.4rem;
+    border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem;
+    cursor: pointer; transition: all .2s; white-space: nowrap;
+  }
+  .cta-email-row button:hover { background: #6aaaff; }
 
-  /* FOOTER */
+  /* ─── FOOTER ─── */
   footer {
-    border-top: 1px solid var(--border);
-    padding: 60px;
-    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg2); border-top: 1px solid var(--border);
+    padding: 3rem 6%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
   }
-  .footer-logo {
-    font-family: var(--font-display);
-    font-size: 1.8rem;
-    color: var(--accent);
-    letter-spacing: 2px;
-  }
-  .footer-logo span { color: var(--muted); }
-  .footer-links { display: flex; gap: 40px; }
-  .footer-links a {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-  .footer-links a:hover { color: var(--accent); }
-  .footer-copy {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: rgba(136,136,153,0.5);
-    letter-spacing: 1px;
-  }
+  footer .logo { font-size: 1.2rem; }
+  footer p { color: var(--muted); font-size: .82rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: .82rem; transition: color .2s; }
+  .footer-links a:hover { color: var(--text); }
 
-  /* SCROLL INDICATOR */
-  .scroll-line {
-    position: fixed; left: 28px; top: 50%; transform: translateY(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    z-index: 200;
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center; padding: 1.5rem;
   }
-  .scroll-line span {
-    writing-mode: vertical-rl;
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2.5rem; max-width: 460px; width: 100%;
+    animation: modalIn .3s cubic-bezier(.34,1.56,.64,1) both;
   }
-  .scroll-dot {
-    width: 5px; height: 5px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: blink 2s infinite;
+  @keyframes modalIn { from { opacity:0; transform:scale(.92) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  .modal-title { font-size: 1.4rem; font-weight: 800; margin-bottom: .4rem; }
+  .modal-sub { color: var(--muted); font-size: .88rem; margin-bottom: 1.8rem; }
+  .modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer;
   }
+  .modal { position: relative; }
+  .tabs { display: flex; gap: 0; background: var(--bg); border-radius: 10px; padding: .3rem; margin-bottom: 1.5rem; }
+  .tab {
+    flex: 1; padding: .55rem; border-radius: 8px; font-family: 'Syne', sans-serif;
+    font-size: .85rem; font-weight: 700; cursor: pointer; border: none;
+    background: none; color: var(--muted); transition: all .2s;
+  }
+  .tab.active { background: var(--card2); color: var(--text); }
+  .modal-form { display: flex; flex-direction: column; gap: .9rem; }
+  .divider { text-align: center; color: var(--muted); font-size: .8rem; position: relative; margin: .5rem 0; }
+  .divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--border); }
+  .divider::before { left:0; } .divider::after { right:0; }
+  .google-btn {
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    padding:.75rem; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    gap:.7rem; font-family:'Syne',sans-serif; font-weight:600; font-size:.9rem;
+    color:var(--text); cursor:pointer; transition:all .2s;
+  }
+  .google-btn:hover { border-color:var(--accent); }
 
-  /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* ─── NOTIFICATION TOAST ─── */
+  .toast {
+    position:fixed; bottom:2rem; right:2rem; z-index:300;
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1rem 1.4rem; display:flex; align-items:center; gap:.8rem;
+    transform:translateX(130%); transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+    min-width:260px; box-shadow:0 8px 30px rgba(0,0,0,.4);
   }
-  @keyframes fadeIn {
-    from { opacity: 0; } to { opacity: 1; }
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; } 50% { opacity: 0.2; }
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+  .toast.show { transform:translateX(0); }
+  .toast-icon { font-size:1.3rem; }
+  .toast-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.88rem; }
+  .toast-msg { color:var(--muted); font-size:.78rem; }
 
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    nav { padding: 16px 24px; }
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:900px) {
+    .demo-wrap, .rep-grid { grid-template-columns: 1fr; }
+    .post-panel { position: static; }
     nav ul { display: none; }
-    .hero { padding: 120px 24px 60px; }
-    .hero-stats { display: none; }
-    .section, .tasks-section, .exchange-section, .features-section, .cta-section { padding: 80px 24px; }
-    .steps-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .task-feed { grid-template-columns: 1fr; }
-    .exchange-grid { grid-template-columns: repeat(3, 1fr); }
-    .features-grid { grid-template-columns: 1fr; }
-    .tasks-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-    footer { flex-direction: column; gap: 32px; text-align: center; }
-    .footer-links { flex-wrap: wrap; justify-content: center; }
-    .scroll-line { display: none; }
+  }
+  @media(max-width:600px) {
+    .stats-bar { gap: 1.5rem; }
+    .hero h1 { letter-spacing: -1px; }
   }
 </style>
 </head>
 <body>
-
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursor-ring"></div>
-
-<div class="scroll-line">
-  <div class="scroll-dot"></div>
-  <span>scroll</span>
-</div>
 
 <!-- NAV -->
 <nav>
   <div class="logo">Task<span>Mate</span></div>
   <ul>
     <li><a href="#how">How it works</a></li>
-    <li><a href="#tasks">Browse Tasks</a></li>
     <li><a href="#features">Features</a></li>
-    <li><a href="#join" class="nav-cta">Join Campus</a></li>
+    <li><a href="#tasks">Browse Tasks</a></li>
+    <li><a href="#categories">Categories</a></li>
   </ul>
+  <button class="nav-cta" onclick="openModal()">Join Campus</button>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-orb"></div>
-  <div class="hero-orb2"></div>
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
 
-  <div class="hero-tag">Beta — Now live on campus</div>
-  <h1>
-    TRADE<br>
-    <em>SKILLS.</em><br>
-    <span class="stroke">NOT CASH.</span>
-  </h1>
-  <p class="hero-sub">
-    The micro-task exchange built for your campus. Post what you need.
-    Offer what you have — money, food, notes, or a favour. Get things done, together.
-  </p>
+  <div class="hero-badge"><span class="hero-badge-dot"></span> Live on 3 campuses · 420+ tasks completed</div>
+
+  <h1>Your Campus,<br><span class="grad">Helping Itself</span></h1>
+  <p>Post any small task. Get offers from nearby students — in money, food, notes, or favors. A micro-exchange built for campus life.</p>
+
   <div class="hero-actions">
-    <a href="#join" class="btn-primary">Post a Task →</a>
-    <a href="#tasks" class="btn-ghost">See Live Tasks</a>
+    <button class="btn-primary" onclick="openModal()">🚀 Join for Free</button>
+    <button class="btn-ghost" onclick="document.getElementById('tasks').scrollIntoView({behavior:'smooth'})">Browse Tasks →</button>
   </div>
 
-  <div class="hero-stats">
-    <div>
-      <div class="stat-num">2.4K</div>
-      <div class="stat-label">Tasks completed</div>
-    </div>
-    <div>
-      <div class="stat-num">98%</div>
-      <div class="stat-label">Satisfaction rate</div>
-    </div>
-    <div>
-      <div class="stat-num">12</div>
-      <div class="stat-label">Campuses active</div>
-    </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="cnt-tasks">0</div><div class="stat-label">Tasks Posted</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-users">0</div><div class="stat-label">Students Active</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-done">0</div><div class="stat-label">Tasks Completed</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-campuses">0</div><div class="stat-label">Campuses</div></div>
   </div>
 </section>
 
 <!-- MARQUEE -->
 <div class="marquee-wrap">
-  <div class="marquee-inner" id="marquee">
-    <span>CODING HELP</span><span class="dot">◆</span>
-    <span>NOTES EXCHANGE</span><span class="dot">◆</span>
-    <span>DESIGN REQUESTS</span><span class="dot">◆</span>
-    <span>TUTORING</span><span class="dot">◆</span>
-    <span>PPT CREATION</span><span class="dot">◆</span>
-    <span>ASSIGNMENTS</span><span class="dot">◆</span>
-    <span>FOOD TRADE</span><span class="dot">◆</span>
-    <span>SKILL SWAP</span><span class="dot">◆</span>
-    <span>CODING HELP</span><span class="dot">◆</span>
-    <span>NOTES EXCHANGE</span><span class="dot">◆</span>
-    <span>DESIGN REQUESTS</span><span class="dot">◆</span>
-    <span>TUTORING</span><span class="dot">◆</span>
-    <span>PPT CREATION</span><span class="dot">◆</span>
-    <span>ASSIGNMENTS</span><span class="dot">◆</span>
-    <span>FOOD TRADE</span><span class="dot">◆</span>
-    <span>SKILL SWAP</span><span class="dot">◆</span>
-  </div>
+  <div class="marquee" id="marquee-inner"></div>
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="section" id="how">
-  <div class="section-label">Process</div>
-  <h2>HOW IT<br><em>WORKS</em></h2>
-  <div class="steps-grid">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-icon">🎓</div>
-      <h3>Verify Your Campus</h3>
-      <p>Sign up with your college email. We keep it local — your community only, no strangers.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-icon">📝</div>
-      <h3>Post a Task</h3>
-      <p>Describe what you need — coding help, notes, a poster, tutoring. Set a deadline and urgency.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-icon">⚡</div>
-      <h3>Receive Offers</h3>
-      <p>Nearby students respond with offers. Choose who you want — based on reputation and terms.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">04</div>
-      <div class="step-icon">🏆</div>
-      <h3>Done & Rated</h3>
-      <p>Task complete, both rate each other. Build your reputation. Repeat.</p>
-    </div>
+<section id="how">
+  <div class="reveal">
+    <div class="section-label">Process</div>
+    <h2 class="section-title">Done in 4 simple steps</h2>
+    <p class="section-sub">From posting to completion — the entire cycle takes minutes, not days.</p>
   </div>
-</section>
-
-<!-- LIVE TASKS -->
-<section class="tasks-section" id="tasks">
-  <div class="tasks-header">
-    <div>
-      <div class="section-label">Live Board</div>
-      <h2>OPEN<br><em>TASKS</em></h2>
+  <div class="how-grid reveal">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <span class="how-icon">🔐</span>
+      <h3>Verify with Campus Email</h3>
+      <p>Sign up with your college email. We keep the community trusted and closed — only real students, no strangers.</p>
     </div>
-    <a href="#join" class="btn-primary">Post Your Task →</a>
-  </div>
-  <div class="task-feed">
-
-    <div class="task-card">
-      <div class="task-urgent">Urgent</div>
-      <div class="task-cat cat-code">Coding</div>
-      <div class="task-title">Fix React bug in my portfolio — ASAP</div>
-      <div class="task-desc">My portfolio site has a hydration error on mobile. Need someone who knows Next.js to look at it tonight.</div>
-      <div class="task-footer">
-        <div class="task-offer">₹200 + Chai ☕</div>
-        <div class="task-deadline">Due in 3 hrs</div>
-      </div>
-      <div class="task-user">
-        <div class="avatar" style="background:rgba(123,94,167,0.25);color:#b08ad4;">AR</div>
-        <div>
-          <div class="task-user-name">Arjun Rao</div>
-          <div class="task-user-rep">★ 4.9 · 23 tasks</div>
-        </div>
-      </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <span class="how-icon">📋</span>
+      <h3>Post Your Task</h3>
+      <p>Describe what you need — a presentation, notes, code help, or anything small. Set a deadline and urgency level.</p>
     </div>
-
-    <div class="task-card">
-      <div class="task-cat cat-notes">Notes</div>
-      <div class="task-title">Need Macro Economics notes — Unit 3 & 4</div>
-      <div class="task-desc">Missed 2 weeks of lectures. Looking for handwritten or typed notes, willing to trade my DSA notes.</div>
-      <div class="task-footer">
-        <div class="task-offer">DSA Notes 📚</div>
-        <div class="task-deadline">Due in 2 days</div>
-      </div>
-      <div class="task-user">
-        <div class="avatar" style="background:rgba(200,245,58,0.15);color:var(--accent);">PS</div>
-        <div>
-          <div class="task-user-name">Priya Sharma</div>
-          <div class="task-user-rep">★ 4.7 · 11 tasks</div>
-        </div>
-      </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <span class="how-icon">⚡</span>
+      <h3>Receive Offers Instantly</h3>
+      <p>Nearby students get notified and send you offers — money, food, their notes, or credits. You pick the best deal.</p>
     </div>
-
-    <div class="task-card">
-      <div class="task-urgent">Urgent</div>
-      <div class="task-cat cat-design">Design</div>
-      <div class="task-title">Design a poster for our Fest — Techno Vibe</div>
-      <div class="task-desc">Need a digital poster for college fest. Theme is cyberpunk/tech. Canva or Figma, any tool is fine.</div>
-      <div class="task-footer">
-        <div class="task-offer">₹350 💸</div>
-        <div class="task-deadline">Due in 5 hrs</div>
-      </div>
-      <div class="task-user">
-        <div class="avatar" style="background:rgba(255,107,107,0.15);color:#ff9a9a;">NK</div>
-        <div>
-          <div class="task-user-name">Nikhil Kumar</div>
-          <div class="task-user-rep">★ 4.8 · 17 tasks</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="task-card">
-      <div class="task-cat cat-tutor">Tutoring</div>
-      <div class="task-title">Explain Dijkstra's algorithm — 1 hour session</div>
-      <div class="task-desc">Placement exam in 3 days, struggling with graph algorithms. Happy to trade Python tutoring in return.</div>
-      <div class="task-footer">
-        <div class="task-offer">Python Help 🐍</div>
-        <div class="task-deadline">Tomorrow</div>
-      </div>
-      <div class="task-user">
-        <div class="avatar" style="background:rgba(74,214,255,0.15);color:#7dd8f5;">RV</div>
-        <div>
-          <div class="task-user-name">Riya Verma</div>
-          <div class="task-user-rep">★ 5.0 · 8 tasks</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="task-card">
-      <div class="task-cat cat-other">Other</div>
-      <div class="task-title">Someone pick up my package from courier — Block C</div>
-      <div class="task-desc">Stuck in lab, package arriving at main gate 2pm. Need someone near Block C to pick and drop to Room 412.</div>
-      <div class="task-footer">
-        <div class="task-offer">Canteen Credits 🍱</div>
-        <div class="task-deadline">Today 2pm</div>
-      </div>
-      <div class="task-user">
-        <div class="avatar" style="background:rgba(255,200,50,0.15);color:#ffc842;">SM</div>
-        <div>
-          <div class="task-user-name">Sahil Mehra</div>
-          <div class="task-user-rep">★ 4.6 · 30 tasks</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="task-card">
-      <div class="task-cat cat-code">Coding</div>
-      <div class="task-title">Build a CRUD app in Django for my assignment</div>
-      <div class="task-desc">Assignment due Sunday. Basic Django app with user auth and a dashboard. I'll handle the report writing.</div>
-      <div class="task-footer">
-        <div class="task-offer">₹500 💸</div>
-        <div class="task-deadline">3 days left</div>
-      </div>
-      <div class="task-user">
-        <div class="avatar" style="background:rgba(123,94,167,0.25);color:#b08ad4;">AK</div>
-        <div>
-          <div class="task-user-name">Ananya K.</div>
-          <div class="task-user-rep">★ 4.5 · 6 tasks</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- EXCHANGE TYPES -->
-<section class="exchange-section">
-  <div class="section-label">Offers</div>
-  <h2>WHAT YOU<br>CAN <em>OFFER</em></h2>
-  <div class="exchange-grid">
-    <div class="exchange-item">
-      <span class="exchange-emoji">💸</span>
-      <span class="exchange-label">Money</span>
-      <span class="exchange-desc">Direct UPI or cash payment for completed tasks</span>
-    </div>
-    <div class="exchange-item">
-      <span class="exchange-emoji">🍕</span>
-      <span class="exchange-label">Food</span>
-      <span class="exchange-desc">Canteen credits, meal trades, or a coffee</span>
-    </div>
-    <div class="exchange-item">
-      <span class="exchange-emoji">📚</span>
-      <span class="exchange-label">Notes</span>
-      <span class="exchange-desc">Lecture notes, study guides, past papers</span>
-    </div>
-    <div class="exchange-item">
-      <span class="exchange-emoji">🌟</span>
-      <span class="exchange-label">Credits</span>
-      <span class="exchange-desc">Platform points to spend on future tasks</span>
-    </div>
-    <div class="exchange-item">
-      <span class="exchange-emoji">🔄</span>
-      <span class="exchange-label">Skills</span>
-      <span class="exchange-desc">I help you code, you help me design — pure barter</span>
+    <div class="how-card">
+      <div class="how-num">04</div>
+      <span class="how-icon">⭐</span>
+      <h3>Complete & Rate</h3>
+      <p>Chat, finish the task, and rate each other. Build your campus reputation with every exchange.</p>
     </div>
   </div>
 </section>
 
 <!-- FEATURES -->
-<section class="features-section" id="features">
-  <div class="section-label">Platform</div>
-  <h2>BUILT FOR<br><em>CAMPUS</em></h2>
-  <div class="features-grid">
-    <div class="feature-block">
-      <div class="feature-icon-wrap">🔒</div>
-      <div>
-        <h3>Campus-Verified Only</h3>
-        <p>Sign up with your college email. Your community stays private — only your campus sees your tasks. No random outsiders.</p>
-      </div>
+<section id="features" class="features-section">
+  <div class="reveal">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything your campus needs</h2>
+    <p class="section-sub">Designed for speed, trust, and real campus community dynamics.</p>
+  </div>
+  <div class="features-grid reveal" id="features-grid"></div>
+</section>
+
+<!-- TASK FEED DEMO -->
+<section id="tasks" class="demo-section">
+  <div class="demo-wrap">
+    <div class="demo-left reveal">
+      <div class="section-label">Live Feed</div>
+      <h2>Real tasks,<br>right now</h2>
+      <p style="color:var(--muted);margin-bottom:1.5rem">See what your campus is exchanging. Filter by category or urgency.</p>
+      <div class="filter-pills" id="filter-pills"></div>
+      <div class="task-feed" id="task-feed"></div>
     </div>
-    <div class="feature-block">
-      <div class="feature-icon-wrap">⚡</div>
-      <div>
-        <h3>Instant Notifications</h3>
-        <p>Post a task and nearby students are alerted in real time. Get offers within minutes, not hours.</p>
-      </div>
-    </div>
-    <div class="feature-block">
-      <div class="feature-icon-wrap">💬</div>
-      <div>
-        <h3>In-App Chat</h3>
-        <p>Communicate directly with task helpers. Negotiate, clarify, and coordinate — all inside the platform.</p>
-      </div>
-    </div>
-    <div class="feature-block">
-      <div class="feature-icon-wrap">⭐</div>
-      <div>
-        <h3>Reputation System</h3>
-        <p>Every completed task builds your profile. High rep = more trust, better offers. Your campus legacy starts here.</p>
-      </div>
-    </div>
-    <div class="feature-block">
-      <div class="feature-icon-wrap">🏷️</div>
-      <div>
-        <h3>Categories & Filters</h3>
-        <p>Browse by coding, design, notes, tutoring, errands, and more. Find exactly what you need, fast.</p>
-      </div>
-    </div>
-    <div class="feature-block">
-      <div class="feature-icon-wrap">🛡️</div>
-      <div>
-        <h3>Safe & Moderated</h3>
-        <p>Report system, task moderation, and community guidelines. A space you can actually trust.</p>
+    <div class="reveal">
+      <div class="post-panel">
+        <h3>✏️ Post a Task</h3>
+        <div class="form-group">
+          <label class="form-label">Task Title</label>
+          <input class="form-input" placeholder="e.g. Need help with Python assignment" id="task-title">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" placeholder="Describe your task in detail..." id="task-desc"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="task-cat">
+            <option value="">Select category</option>
+            <option>📐 Assignments</option>
+            <option>💻 Coding Help</option>
+            <option>🎨 Design</option>
+            <option>📚 Notes Exchange</option>
+            <option>🎓 Tutoring</option>
+            <option>📊 Presentations</option>
+            <option>🌐 Translation</option>
+            <option>📷 Photography</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Offering in exchange</label>
+          <div class="offer-chips" id="offer-chips"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Urgency</label>
+          <select class="form-select" id="task-urgency">
+            <option>⏰ Today</option>
+            <option>📅 This week</option>
+            <option>🗓️ Flexible</option>
+          </select>
+        </div>
+        <button class="btn-post" onclick="postTask()">Post Task →</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-section" id="join">
-  <div class="section-label" style="justify-content:center;">Join the waitlist</div>
-  <h2>YOUR CAMPUS.<br><em>YOUR RULES.</em></h2>
-  <p>Be the first to bring TaskMate to your college. Get early access, founding member badge, and free credits.</p>
-  <div class="cta-actions">
-    <a href="#" class="btn-primary" onclick="handleSignup(event)">Get Early Access →</a>
-    <a href="#" class="btn-ghost">For Colleges →</a>
+<!-- EXCHANGE TYPES -->
+<section style="background:var(--bg2);">
+  <div class="reveal" style="text-align:center;margin-bottom:2.5rem">
+    <div class="section-label" style="text-align:center">What you can offer</div>
+    <h2 class="section-title">Exchange anything of value</h2>
+    <p class="section-sub" style="margin:0 auto">No cash? No problem. TaskMate accepts all kinds of exchanges.</p>
   </div>
-  <div id="signup-msg" style="margin-top:32px;font-family:var(--font-mono);font-size:0.8rem;color:var(--accent);display:none;letter-spacing:2px;">
-    ✓ YOU'RE ON THE LIST. WE'LL BE IN TOUCH.
+  <div class="exchange-grid reveal" id="exchange-grid"></div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories" class="cat-section">
+  <div class="reveal">
+    <div class="section-label">Categories</div>
+    <h2 class="section-title">Find tasks by type</h2>
+    <p class="section-sub">From academic help to creative work — every skill has a market on campus.</p>
+  </div>
+  <div class="cat-grid reveal" id="cat-grid"></div>
+</section>
+
+<!-- REPUTATION -->
+<section class="rep-section">
+  <div class="rep-grid">
+    <div class="reveal">
+      <div class="section-label">Trust System</div>
+      <h2 class="section-title">Your campus reputation matters</h2>
+      <p style="color:var(--muted);margin-bottom:1.5rem">Every task you complete builds your profile. High-rated helpers get priority placement, badges, and more offers — trust is currency.</p>
+      <div style="display:flex;flex-direction:column;gap:.7rem">
+        <div style="display:flex;gap:.8rem;align-items:center">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
+          <span style="font-size:.9rem">Verified campus identity via college email</span>
+        </div>
+        <div style="display:flex;gap:.8rem;align-items:center">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--accent2);flex-shrink:0"></div>
+          <span style="font-size:.9rem">Mutual ratings after every completed task</span>
+        </div>
+        <div style="display:flex;gap:.8rem;align-items:center">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+          <span style="font-size:.9rem">Skill badges earned from task history</span>
+        </div>
+        <div style="display:flex;gap:.8rem;align-items:center">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--accent3);flex-shrink:0"></div>
+          <span style="font-size:.9rem">Campus leaderboard — top helpers recognized</span>
+        </div>
+      </div>
+    </div>
+    <div class="rep-right reveal" id="rep-cards"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="reveal">
+    <h2>Ready to join your<br><span class="grad">campus exchange?</span></h2>
+    <p>Sign up with your college email and start posting or helping today. It takes 30 seconds.</p>
+    <div class="cta-email-row">
+      <input type="email" placeholder="your@college.edu" id="cta-email">
+      <button onclick="ctaJoin()">Get Early Access</button>
+    </div>
+    <p style="margin-top:1rem;font-size:.78rem;color:var(--muted)">🔒 Only verified college emails accepted · Free forever for students</p>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div>
-    <div class="footer-logo">Task<span>Mate</span></div>
-    <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);margin-top:8px;letter-spacing:1px;">Campus micro-task exchange</div>
-  </div>
+  <div class="logo">Task<span>Mate</span></div>
+  <p>© 2025 TaskMate · Built for campus communities</p>
   <div class="footer-links">
-    <a href="#">About</a>
     <a href="#">Privacy</a>
     <a href="#">Terms</a>
     <a href="#">Contact</a>
     <a href="#">Blog</a>
   </div>
-  <div class="footer-copy">© 2025 TASKMATE · ALL RIGHTS RESERVED</div>
 </footer>
 
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Welcome to TaskMate</div>
+    <div class="modal-sub">Exchange help with your campus community</div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login',this)">Log In</button>
+      <button class="tab" onclick="switchTab('signup',this)">Sign Up</button>
+    </div>
+    <div class="modal-form" id="login-form">
+      <input class="form-input" placeholder="College email" type="email">
+      <input class="form-input" placeholder="Password" type="password">
+      <button class="btn-post" onclick="fakeLogin()">Log In</button>
+      <div class="divider">or</div>
+      <button class="google-btn">🎓 Continue with College SSO</button>
+    </div>
+    <div class="modal-form" id="signup-form" style="display:none">
+      <input class="form-input" placeholder="Full name">
+      <input class="form-input" placeholder="College email (verified)" type="email">
+      <input class="form-input" placeholder="Choose password" type="password">
+      <select class="form-select"><option value="">Select your campus</option><option>Delhi University</option><option>IIT Bombay</option><option>NIT Srinagar</option><option>Jamia Millia Islamia</option><option>Other Campus</option></select>
+      <button class="btn-post" onclick="fakeLogin()">Create Account →</button>
+      <div class="divider">or</div>
+      <button class="google-btn">🎓 Sign up with College SSO</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon">🎉</div>
+  <div>
+    <div class="toast-title" id="toast-title">Task Posted!</div>
+    <div class="toast-msg" id="toast-msg">Your task is live. Waiting for offers...</div>
+  </div>
+</div>
+
 <script>
-  // CUSTOM CURSOR
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursor-ring');
-  let mx = 0, my = 0;
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cursor.style.left = mx + 'px';
-    cursor.style.top = my + 'px';
-    ring.style.left = mx + 'px';
-    ring.style.top = my + 'px';
-  });
-  document.querySelectorAll('a, button, .task-card, .step, .exchange-item, .feature-block').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.width = '20px';
-      cursor.style.height = '20px';
-      ring.style.transform = 'translate(-50%, -50%) scale(1.5)';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.width = '12px';
-      cursor.style.height = '12px';
-      ring.style.transform = 'translate(-50%, -50%) scale(1)';
-    });
-  });
+// ─── DATA ───
+const taskData = [
+  { title:"Need Python assignment help urgently", desc:"OOP concepts — classes and inheritance. Due tonight 11pm.", cat:"💻 Coding", offer:"₹150 + Pizza slice", badge:"badge-orange", user:"Aryan K.", time:"3 min ago", col:"#f97b4f" },
+  { title:"PPT design for entrepreneurship pitch", desc:"8-slide deck for startup idea presentation tomorrow.", cat:"📊 Slides", offer:"My Econ notes + ₹50", badge:"badge-blue", user:"Sara M.", time:"9 min ago", col:"#4f9cf9" },
+  { title:"Proofread my English essay (2000 words)", desc:"Essay on environmental policy. Need grammar & flow check.", cat:"📝 Writing", offer:"Canteen voucher", badge:"badge-green", user:"Rohit S.", time:"18 min ago", col:"#3ecf8e" },
+  { title:"Teach me React hooks — 1 hour session", desc:"I know basic JS, need to build a project for internship.", cat:"🎓 Tutoring", offer:"₹200 cash", badge:"badge-purple", user:"Nadia A.", time:"32 min ago", col:"#7c5cfc" },
+  { title:"Photo editing for college magazine cover", desc:"RAW files ready, need colour correction + typography.", cat:"🎨 Design", offer:"Free lunch + credits", badge:"badge-orange", user:"Zaid H.", time:"1 hr ago", col:"#f97b4f" },
+];
 
-  // SIGNUP
-  function handleSignup(e) {
-    e.preventDefault();
-    const msg = document.getElementById('signup-msg');
-    msg.style.display = 'block';
-    msg.style.opacity = '0';
-    msg.style.transition = 'opacity 0.5s';
-    setTimeout(() => msg.style.opacity = '1', 10);
-  }
+const features = [
+  { icon:"📍", bg:"rgba(79,156,249,0.12)", title:"Campus-Only Access", desc:"Restricted to verified students via college email. Your campus, your community — no outsiders." },
+  { icon:"⚡", bg:"rgba(124,92,252,0.12)", title:"Instant Notifications", desc:"Nearby students are notified the moment you post. Get offers within minutes, not hours." },
+  { icon:"💬", bg:"rgba(62,207,142,0.12)", title:"In-App Chat", desc:"Negotiate, clarify, and coordinate through secure in-app messaging before and after accepting." },
+  { icon:"🤝", bg:"rgba(249,123,79,0.12)", title:"Flexible Exchanges", desc:"Offer money, food, your notes, campus credits, or even a skill. Any value counts." },
+  { icon:"⭐", bg:"rgba(79,156,249,0.12)", title:"Reputation System", desc:"Build your campus profile with every task. High ratings unlock badges and priority placement." },
+  { icon:"🏆", bg:"rgba(124,92,252,0.12)", title:"Campus Leaderboard", desc:"Top helpers get recognized across campus. Compete, collaborate, and grow your skills." },
+  { icon:"🔒", bg:"rgba(249,123,79,0.12)", title:"Safe & Moderated", desc:"Report tools, community moderation, and identity verification keep every exchange safe." },
+  { icon:"🪙", bg:"rgba(62,207,142,0.12)", title:"TaskCoins Credits", desc:"Earn credits for every task. Spend them when you need help — a skill economy for campus." },
+];
 
-  // SCROLL REVEAL
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.1 });
+const categories = [
+  { icon:"💻", bg:"rgba(79,156,249,0.12)", name:"Coding Help", count:"134 tasks" },
+  { icon:"📊", bg:"rgba(124,92,252,0.12)", name:"Presentations", count:"89 tasks" },
+  { icon:"📚", bg:"rgba(62,207,142,0.12)", name:"Notes Exchange", count:"210 tasks" },
+  { icon:"🎨", bg:"rgba(249,123,79,0.12)", name:"Design", count:"67 tasks" },
+  { icon:"🎓", bg:"rgba(245,197,66,0.12)", name:"Tutoring", count:"156 tasks" },
+  { icon:"📐", bg:"rgba(79,156,249,0.12)", name:"Assignments", count:"303 tasks" },
+  { icon:"📸", bg:"rgba(124,92,252,0.12)", name:"Photography", count:"41 tasks" },
+  { icon:"🌐", bg:"rgba(62,207,142,0.12)", name:"Translation", count:"28 tasks" },
+];
 
-  document.querySelectorAll('.step, .task-card, .feature-block, .exchange-item').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(28px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(el);
+const exchanges = [
+  { emoji:"💰", title:"Cash", desc:"Pay someone directly for their time and skill." },
+  { emoji:"🍕", title:"Food", desc:"Offer a canteen meal, snack, or campus treat." },
+  { emoji:"📓", title:"Notes", desc:"Share your handwritten or digital notes." },
+  { emoji:"🪙", title:"TaskCoins", desc:"Use earned credits — the campus economy." },
+  { emoji:"✏️", title:"Skills", desc:"Teach something in return — barter expertise." },
+  { emoji:"🤝", title:"Favors", desc:"Return the help next time they need something." },
+];
+
+const helpers = [
+  { name:"Priya S.", skill:"Python · ML · Stats", tasks:47, rating:"4.9", emoji:"👩‍💻", bg:"rgba(79,156,249,0.2)" },
+  { name:"Zaid H.", skill:"Design · Figma · Video", tasks:31, rating:"4.8", emoji:"🎨", bg:"rgba(124,92,252,0.2)" },
+  { name:"Aryan K.", skill:"Maths · Physics · CAD", tasks:58, rating:"5.0", emoji:"📐", bg:"rgba(62,207,142,0.2)" },
+  { name:"Sara M.", skill:"Writing · Research · PPT", tasks:24, rating:"4.7", emoji:"📝", bg:"rgba(249,123,79,0.2)" },
+];
+
+const marqueeItems = ["📋 Post a task","⚡ Get instant offers","💬 Chat & negotiate","✅ Complete & rate","🎓 Campus-only access","🪙 Earn TaskCoins","🏆 Build your reputation","📍 Location-based matching"];
+const filters = ["All","Coding","Design","Notes","Tutoring","Urgent"];
+const offerChips = ["💰 Cash","🍕 Food","📓 Notes","🪙 Credits","🤝 Favor"];
+
+// ─── RENDER ───
+function buildMarquee() {
+  const m = document.getElementById('marquee-inner');
+  const all = [...marqueeItems, ...marqueeItems];
+  m.innerHTML = all.map(i=>`<span class="marquee-item"><span class="dot"></span>${i}</span>`).join('');
+}
+
+function buildFeatures() {
+  document.getElementById('features-grid').innerHTML = features.map(f=>`
+    <div class="feat-card">
+      <div class="feat-icon-wrap" style="background:${f.bg}">${f.icon}</div>
+      <div><h4>${f.title}</h4><p>${f.desc}</p></div>
+    </div>`).join('');
+}
+
+function buildCategories() {
+  document.getElementById('cat-grid').innerHTML = categories.map(c=>`
+    <div class="cat-card" onclick="showToast('🔍','Browsing ${c.name}','Showing all tasks in this category...')">
+      <div class="cat-icon-bg" style="background:${c.bg}">${c.icon}</div>
+      <h4>${c.name}</h4><span>${c.count}</span>
+    </div>`).join('');
+}
+
+function buildExchanges() {
+  document.getElementById('exchange-grid').innerHTML = exchanges.map(e=>`
+    <div class="ex-card"><span class="ex-emoji">${e.emoji}</span><h4>${e.title}</h4><p>${e.desc}</p></div>`).join('');
+}
+
+function buildRepCards() {
+  document.getElementById('rep-cards').innerHTML = helpers.map(h=>`
+    <div class="rep-card">
+      <div class="rep-avatar" style="background:${h.bg}">${h.emoji}</div>
+      <div class="rep-info">
+        <h4>${h.name}</h4>
+        <div class="stars">${'★'.repeat(Math.floor(h.rating))}${h.rating%1?'½':''}</div>
+        <p>${h.skill} · ${h.tasks} tasks done</p>
+      </div>
+      <div class="rep-badge">⭐ ${h.rating}</div>
+    </div>`).join('');
+}
+
+function buildTaskFeed(filter = 'All') {
+  const feed = document.getElementById('task-feed');
+  const shown = filter === 'All' ? taskData : taskData.filter(t=>t.cat.toLowerCase().includes(filter.toLowerCase()));
+  feed.innerHTML = shown.map(t=>`
+    <div class="task-card" onclick="showToast('⚡','Task opened!','You can now send an offer to ${t.user}')">
+      <div class="tc-top">
+        <div class="tc-title">${t.title}</div>
+        <span class="tc-badge ${t.badge}">${t.cat}</span>
+      </div>
+      <div class="tc-desc">${t.desc}</div>
+      <div class="tc-footer">
+        <div class="tc-user"><div class="avatar" style="background:${t.col}">${t.user[0]}</div>${t.user}</div>
+        <span class="tc-offer">${t.offer}</span>
+        <span class="tc-time">${t.time}</span>
+      </div>
+    </div>`).join('');
+}
+
+function buildFilters() {
+  const wrap = document.getElementById('filter-pills');
+  wrap.innerHTML = filters.map((f,i)=>`
+    <button class="pill${i===0?' active':''}" onclick="filterTasks('${f}',this)">${f}</button>`).join('');
+}
+
+function buildOfferChips() {
+  const wrap = document.getElementById('offer-chips');
+  wrap.innerHTML = offerChips.map(c=>`
+    <button class="offer-chip" onclick="this.classList.toggle('sel')">${c}</button>`).join('');
+}
+
+function filterTasks(f, btn) {
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  buildTaskFeed(f);
+}
+
+// ─── COUNTER ANIMATION ───
+function animateCounter(id, target, suffix='') {
+  const el = document.getElementById(id);
+  let start = 0; const duration = 1800;
+  const step = target / (duration / 16);
+  const timer = setInterval(()=>{
+    start = Math.min(start + step, target);
+    el.textContent = Math.floor(start).toLocaleString() + suffix;
+    if(start >= target) clearInterval(timer);
+  }, 16);
+}
+
+const counterObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animateCounter('cnt-tasks','1240','+');
+      animateCounter('cnt-users','3800','+');
+      animateCounter('cnt-done','940','+');
+      animateCounter('cnt-campuses','12','+');
+      counterObs.disconnect();
+    }
   });
+},{threshold:.4});
+counterObs.observe(document.querySelector('.stats-bar'));
+
+// ─── REVEAL ON SCROLL ───
+const revealObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// ─── MODAL ───
+function openModal(){ document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e){ if(e.target===document.getElementById('modal')) closeModal(); }
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('login-form').style.display = tab==='login'?'flex':'none';
+  document.getElementById('signup-form').style.display = tab==='signup'?'flex':'none';
+}
+function fakeLogin(){
+  closeModal();
+  showToast('🎉','Welcome to TaskMate!','Your campus community is ready for you.');
+}
+
+// ─── TOAST ───
+function showToast(icon, title, msg) {
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ─── POST TASK ───
+function postTask(){
+  const title = document.getElementById('task-title').value.trim();
+  if(!title){ showToast('⚠️','Add a title','Please describe your task first.'); return; }
+  const newTask = {
+    title, desc: document.getElementById('task-desc').value||'No description provided.',
+    cat: document.getElementById('task-cat').value||'📋 General',
+    offer: Array.from(document.querySelectorAll('.offer-chip.sel')).map(c=>c.textContent).join(', ')||'Open to offers',
+    badge:'badge-blue', user:'You', time:'just now', col:'#4f9cf9'
+  };
+  taskData.unshift(newTask);
+  buildTaskFeed();
+  document.getElementById('task-title').value='';
+  document.getElementById('task-desc').value='';
+  showToast('🚀','Task Posted Live!','Your task is visible to nearby students now.');
+}
+
+// ─── CTA ───
+function ctaJoin(){
+  const e = document.getElementById('cta-email').value;
+  if(!e.includes('@')){ showToast('📧','Enter a valid email','Use your college email to join.'); return; }
+  showToast('✅','You\'re on the list!','We\'ll send your campus invite shortly.');
+  document.getElementById('cta-email').value='';
+}
+
+// ─── INIT ───
+buildMarquee();
+buildFeatures();
+buildCategories();
+buildExchanges();
+buildRepCards();
+buildTaskFeed();
+buildFilters();
+buildOfferChips();
+
+// Delayed reveal for initial elements
+setTimeout(()=>{
+  document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+},100);
+
+// Simulate live activity
+setInterval(()=>{
+  const names = ['Aisha B.','Dev P.','Kritika S.','Omar F.','Tanvi R.'];
+  const tasks = ['just posted a task','completed an exchange','sent an offer','earned a badge','joined the campus'];
+  const n = names[Math.floor(Math.random()*names.length)];
+  const t = tasks[Math.floor(Math.random()*tasks.length)];
+  showToast('🟢', n, t);
+}, 8000);
 </script>
 </body>
 </html>
